@@ -26,18 +26,18 @@ extension Theme where Site == Hd {
 }
 
 // custom html
-public protocol SOB {
-    static   func htmlForTestPage(for page: Page,context: PublishingContext<Hd>) -> HTML
-    static   func htmlForIndexPage(for index: Index,context:PublishingContext<Hd>) -> HTML
-    static   func htmlForMembersPage(for page: Page, context: PublishingContext<Hd>) -> HTML
-}
+//public protocol SOB {
+//    static   func htmlForTestPage(for page: Page,context: PublishingContext<Hd>) -> HTML
+//    static   func htmlForIndexPage(for index: Index,context:PublishingContext<Hd>) -> HTML
+//    static   func htmlForMembersPage(for page: Page, context: PublishingContext<Hd>) -> HTML
+//}
 
 
 
 //MARK: - these are all wired to Hd
 
-struct HdHTMLFactory: HTMLFactory {
-    func makeSectionHTML(for section: Section<Hd>,
+public struct HdHTMLFactory: HTMLFactory {
+    public func makeSectionHTML(for section: Section<Hd>,
                          context: PublishingContext<Hd>) throws -> HTML {
         HTML(
             .lang(context.site.language),
@@ -53,7 +53,7 @@ struct HdHTMLFactory: HTMLFactory {
         )
     }
     
-    func makeItemHTML(for item: Item<Hd>,
+    public func makeItemHTML(for item: Item<Hd>,
                       context: PublishingContext<Hd>) throws -> HTML {
         HTML(
             .lang(context.site.language),
@@ -76,7 +76,7 @@ struct HdHTMLFactory: HTMLFactory {
         )
     }
     
-    func makeTagListHTML(for page: TagListPage,
+   public  func makeTagListHTML(for page: TagListPage,
                          context: PublishingContext<Hd>) throws -> HTML? {
         HTML(
             .lang(context.site.language),
@@ -101,7 +101,7 @@ struct HdHTMLFactory: HTMLFactory {
         )
     }
     
-    func makeTagDetailsHTML(for page: TagDetailsPage,
+   public  func makeTagDetailsHTML(for page: TagDetailsPage,
                             context: PublishingContext<Hd>) throws -> HTML? {
         HTML(
             .lang(context.site.language),
@@ -132,13 +132,13 @@ struct HdHTMLFactory: HTMLFactory {
         )
     }
 
-    func makeIndexHTML(for index: Index,
+  public   func makeIndexHTML(for index: Index,
                        context: PublishingContext<Hd>) throws -> HTML {
         return try bandfacts.htmlIndexPageFunc!(index,context)
        
     }
 
-    func makePageHTML(for page: Page,
+  public   func makePageHTML(for page: Page,
                       context: PublishingContext<Hd>) throws -> HTML {
         
         var result : HTML
