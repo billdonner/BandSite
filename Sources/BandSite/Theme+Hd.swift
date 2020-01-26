@@ -37,8 +37,10 @@ extension Theme where Site == Hd {
 //MARK: - these are all wired to Hd
 
 open class HdHTMLFactory: HTMLFactory {
-    public func makeSectionHTML(for section: Section<Hd>,
-                         context: PublishingContext<Hd>) throws -> HTML {
+    public typealias Site = Hd
+    
+    public func makeSectionHTML(for section: Section<Site>,
+                         context: PublishingContext<Site>) throws -> HTML {
         HTML(
             .lang(context.site.language),
             .head(for: section, on: context.site,stylesheetPaths:["/hdstyles.css"]),
@@ -53,8 +55,8 @@ open class HdHTMLFactory: HTMLFactory {
         )
     }
     
-    public func makeItemHTML(for item: Item<Hd>,
-                      context: PublishingContext<Hd>) throws -> HTML {
+    public func makeItemHTML(for item: Item<Site>,
+                      context: PublishingContext<Site>) throws -> HTML {
         HTML(
             .lang(context.site.language),
             .head(for: item, on: context.site,stylesheetPaths:["/hdstyles.css"]),
@@ -77,7 +79,7 @@ open class HdHTMLFactory: HTMLFactory {
     }
     
    public  func makeTagListHTML(for page: TagListPage,
-                         context: PublishingContext<Hd>) throws -> HTML? {
+                         context: PublishingContext<Site>) throws -> HTML? {
         HTML(
             .lang(context.site.language),
             .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
@@ -102,7 +104,7 @@ open class HdHTMLFactory: HTMLFactory {
     }
     
    public  func makeTagDetailsHTML(for page: TagDetailsPage,
-                            context: PublishingContext<Hd>) throws -> HTML? {
+                            context: PublishingContext<Site>) throws -> HTML? {
         HTML(
             .lang(context.site.language),
             .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
@@ -133,13 +135,13 @@ open class HdHTMLFactory: HTMLFactory {
     }
 
   public   func makeIndexHTML(for index: Index,
-                       context: PublishingContext<Hd>) throws -> HTML {
+                       context: PublishingContext<Site>) throws -> HTML {
         return try bandfacts.htmlIndexPageFunc!(index,context)
        
     }
 
   public   func makePageHTML(for page: Page,
-                      context: PublishingContext<Hd>) throws -> HTML {
+                      context: PublishingContext<Site>) throws -> HTML {
         
         var result : HTML
         switch page.path {
