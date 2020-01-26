@@ -20,7 +20,7 @@ import LinkGrubber
 var bandfacts: AudioSiteSpec!
 
 open class  Hd: Website {
-    static func setup(_ bf:AudioSiteSpec){
+    public static func setup(_ bf:AudioSiteSpec){
         bandfacts = bf
     }
 
@@ -123,9 +123,7 @@ public typealias IndexPageSig = (Index,PublishingContext<Hd>) throws -> HTML
 public typealias GeneralPageSig = (Page,PublishingContext<Hd>) throws -> HTML
 struct BandSitePrePublish{
     
-    static func addFavoritePage(links:[Fav],props:CustomPageProps) throws {
-       try AudioSupport(bandfacts:bandfacts, lgFuncs: LgFuncs.defaults()).audioListPageMakerFunc(props:props, links:links)
-    }
+
         
         static func runAllPrePublishingSteps () -> Int {
             do{
@@ -226,11 +224,11 @@ open class AudioSiteSpec:BandSiteProt&FileSiteProt {
 
 
 
-typealias CrawlingSignature =  ([RootStart] , @escaping (Int)->()) -> ()
+public typealias CrawlingSignature =  ([RootStart] , @escaping (Int)->()) -> ()
 
 
 
-func command_main(crawler:CrawlingSignature) {
+public func command_main(crawler:CrawlingSignature,bandfacts:AudioSiteSpec) {
 
     // places to test, or simply to use
     func standard_testing_roots(c:String)->String {
@@ -268,6 +266,7 @@ func command_main(crawler:CrawlingSignature) {
         let incoming = String(arg1.first ?? "X")
         let rooturl = standard_testing_roots(c:incoming)
         let rs = [RootStart(name: incoming, urlstr: rooturl)]
+        Hd.setup(bandfacts)
         print("[crawler] executing \(rooturl)")
         crawler(rs,  { status in
             switch status {
