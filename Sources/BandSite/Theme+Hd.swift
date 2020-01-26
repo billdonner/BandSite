@@ -10,21 +10,21 @@ import Plot
 import GigSiteAudio
 import LinkGrubber
 
-public struct  BandSiteSwatches {
+open class  BandSiteSwatches {
     
-    var topNavStuff: Node<HTML.BodyContext>
-    var indexUpper: Node<HTML.BodyContext>
-     var indexLower: Node<HTML.BodyContext>
-     var memberPageFull: Node<HTML.BodyContext>
+    public var topNavStuff: Node<HTML.BodyContext>
+    public  var indexUpper: Node<HTML.BodyContext>
+    public var indexLower: Node<HTML.BodyContext>
+    public var memberPageFull: Node<HTML.BodyContext>
     
     public init(  topNavStuff: Node<HTML.BodyContext>,
-         indexUpper: Node<HTML.BodyContext>,
-         indexLower: Node<HTML.BodyContext>,
-         memberPageFull: Node<HTML.BodyContext>){
+                  indexUpper: Node<HTML.BodyContext>,
+                  indexLower: Node<HTML.BodyContext>,
+                  memberPageFull: Node<HTML.BodyContext>){
         self.topNavStuff = topNavStuff
-          self.indexUpper = indexUpper
-          self.indexLower = indexLower
-          self.memberPageFull = memberPageFull
+        self.indexUpper = indexUpper
+        self.indexLower = indexLower
+        self.memberPageFull = memberPageFull
     }
 }
 
@@ -152,25 +152,25 @@ open class HdHTMLFactory: HTMLFactory {
     public   func makeIndexHTML(for index: Index,
                                 context: PublishingContext<Hd>) throws -> HTML {
         HTML(
-                   .lang(context.site.language),
-                   .head(for: index, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-                   .body(
-                       .header(for: context, selectedSection: nil),
-                       .wrapper(
-                        bandfacts.indexUpper,
-                        
-                           .itemList( for: context.someItems(max:5, sortedBy: \.date,
-                               order: .descending
-                               ),
-                                      on: context.site
-                           ),
-                           
-                       bandfacts.indexLower,
-                       
-                       .footer(for: context.site)
-                    )
-                   )
-               )
+            .lang(context.site.language),
+            .head(for: index, on: context.site,stylesheetPaths:["/hdstyles.css"]),
+            .body(
+                .header(for: context, selectedSection: nil),
+                .wrapper(
+                    bandfacts.indexUpper,
+                    
+                    .itemList( for: context.someItems(max:5, sortedBy: \.date,
+                                                      order: .descending
+                        ),
+                               on: context.site
+                    ),
+                    
+                    bandfacts.indexLower,
+                    
+                    .footer(for: context.site)
+                )
+            )
+        )
     }
     
     public   func makePageHTML(for page: Page,
@@ -186,16 +186,16 @@ open class HdHTMLFactory: HTMLFactory {
         default: fatalError("cant make!PageHTML for \(page) context:\(context.site.name)")
         }
         
-       return  HTML(
-                 .lang(context.site.language),
-                 .head(for: page, on: context.site),
-                 .body(
-                     .header(for: context, selectedSection: nil),
-                     .wrapper(result),
-                     .footer(for: context.site)
-                 )
-             )
-}
+        return  HTML(
+            .lang(context.site.language),
+            .head(for: page, on: context.site),
+            .body(
+                .header(for: context, selectedSection: nil),
+                .wrapper(result),
+                .footer(for: context.site)
+            )
+        )
+    }
 }
 extension Node where Context == HTML.BodyContext {
     static func wrapper(_ nodes: Node...) -> Node {
