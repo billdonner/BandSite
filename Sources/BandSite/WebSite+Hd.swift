@@ -90,6 +90,19 @@ extension PublishingStep where Site == Hd {
 
 extension Hd {
     
+    static func runAllPrePublishingSteps () -> Int {
+          do{
+              let funcs : [() throws  ->  ()] = PublishingStep<Hd>.allpagefuncs
+              for f in funcs {
+                  try f()
+              }
+              return funcs.count
+          }
+          catch {
+              return 0
+          }
+      }
+    
     static func publisher() ->Int {
         do {
         let (steps,stepcount) = try PublishingStep<Hd>.allsteps()
@@ -101,14 +114,13 @@ extension Hd {
             return 0
         }
     }
-    static func audioCrawler (_ roots:[RootStart],finally:@escaping (Int)->()) {
+   public static func audioCrawler (_ roots:[RootStart],finally:@escaping (Int)->()) {
 
         let _ = AudioCrawler(roots:roots,
                         verbosity:  .none,
-                        prepublishFunc:BandSitePrePublish.runAllPrePublishingSteps,
+                        prepublishFunc: runAllPrePublishingSteps,
                         publishFunc: Hd.publisher,
-                        bandSiteParams: bandfacts,
-                        specialFolderPaths: bandfacts.specialFolderPaths) { status in // just runs
+                        bandSiteParams: bandfacts) { status in // just runs
                         finally(status)
         }
     }
@@ -121,23 +133,9 @@ static var allpagefuncs:[()throws->() ] = []//[addBillsFavorites,addBriansFavori
 
 public typealias IndexPageSig = (Index,PublishingContext<Hd>) throws -> HTML
 public typealias GeneralPageSig = (Page,PublishingContext<Hd>) throws -> HTML
-struct BandSitePrePublish{
+ 
     
-
-        
-        static func runAllPrePublishingSteps () -> Int {
-            do{
-                let funcs : [() throws  ->  ()] = PublishingStep<Hd>.allpagefuncs
-                for f in funcs {
-                    try f()
-                }
-                return funcs.count
-            }
-            catch {
-                return 0
-            }
-        }
-}
+ 
 
 open class AudioSiteSpec:BandSiteProt&FileSiteProt {
     public var artist : String
