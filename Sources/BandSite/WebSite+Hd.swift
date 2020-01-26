@@ -133,9 +133,6 @@ static var allpagefuncs:[()throws->() ] = []//[addBillsFavorites,addBriansFavori
 
 public typealias IndexPageSig = (Index,PublishingContext<Hd>) throws -> HTML
 public typealias GeneralPageSig = (Page,PublishingContext<Hd>) throws -> HTML
- 
-    
- 
 
 open class AudioSiteSpec:BandSiteProt&FileSiteProt {
     public var artist : String
@@ -157,9 +154,10 @@ open class AudioSiteSpec:BandSiteProt&FileSiteProt {
     public var titleForMembersPage: String
     public var resourcePaths:Set<Path>
     public var description : String
-    public var htmlIndexPageFunc: IndexPageSig?
-    public var htmlMembersPageFunc: GeneralPageSig?
-    public var htmlTestPageFunc: GeneralPageSig?
+    public var topNavStuff:Node<HTML.BodyContext>//Node<PublishingContext<Hd>>?
+    public var indexUpper :Node<HTML.BodyContext>//Node<PublishingContext<Hd>>?
+       public var indexLower:Node<HTML.BodyContext>// Node<PublishingContext<Hd>>?
+       public var memberPageFull:Node<HTML.BodyContext>//Node<PublishingContext<Hd>>?
     public var imagePath : Path?
     public var favicon: Favicon?
     
@@ -183,9 +181,10 @@ open class AudioSiteSpec:BandSiteProt&FileSiteProt {
         titleForBlog: String = "",
         titleForMembersPage: String = "",
         resourcePaths: Set<Path> = [],
-        htmlIndexPageFunc: IndexPageSig?,
-        htmlMembersPageFunc: GeneralPageSig?,
-        htmlTestPageFunc: GeneralPageSig?,
+        indexUpper: Node<HTML.BodyContext>,// Node<PublishingContext<Hd>>?,
+        indexLower: Node<HTML.BodyContext>,// Node<PublishingContext<Hd>>?,
+    memberPageFull:Node<HTML.BodyContext>,//Node<PublishingContext<Hd>>?,
+        topNavStuff:Node<HTML.BodyContext>,//  Node<PublishingContext<Hd>>?,
         imagePath : Path? = nil,
         favicon:Favicon? = nil
     ){
@@ -208,9 +207,10 @@ open class AudioSiteSpec:BandSiteProt&FileSiteProt {
         self.titleForMembersPage = titleForMembersPage
         self.resourcePaths = resourcePaths
         self.description = description
-        self.htmlIndexPageFunc = htmlIndexPageFunc
-        self.htmlMembersPageFunc = htmlMembersPageFunc
-        self.htmlTestPageFunc = htmlTestPageFunc
+        self.indexUpper = indexUpper
+        self.indexLower = indexLower
+        self.memberPageFull = memberPageFull
+        self.topNavStuff = topNavStuff
         self.imagePath = imagePath
         self.favicon = favicon
         //
