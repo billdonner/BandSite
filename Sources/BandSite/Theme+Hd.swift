@@ -284,3 +284,126 @@ extension PublishingContext where Site == Hd  {
     }
 }
 
+
+///this would be best in downtown
+extension HdHTMLFactory  {
+ 
+ public static func htmlForTestPage(for page: Page,
+                              context: PublishingContext<Site>) -> HTML {
+    HTML(
+        .lang(context.site.language),
+        .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
+        .body(
+            .header(for: context, selectedSection: nil),
+            .wrapper(.h2(.text("TEST PAGE"))),
+            .footer(for: context.site)
+        ))
+}
+
+ public static func htmlForIndexPage(for index: Index,context:PublishingContext<Site>) -> HTML {
+    HTML(
+               .lang(context.site.language),
+               .head(for: index, on: context.site,stylesheetPaths:["/hdstyles.css"]),
+               .body(
+                   .header(for: context, selectedSection: nil),
+                   .wrapper(
+                       .h1(.text(index.title)),
+                       .p(
+                           .class("description"),
+                           .text("New Home for  About Half Dead")
+                       ),
+                       
+                       .h2("Recent Posts"),
+                       .itemList( for: context.someItems(max:5, sortedBy: \.date,
+                                                         order: .descending
+                           ),
+                                  on: context.site
+                       )),
+                   
+                   .h4("Data Assets"),
+                   .ul(
+                       
+                       .li(    .class("reftag"),
+                               .a(.href("/BigData/bigdata.csv"),
+                                  .text("CSV for data anaylsis")) ),
+                       .li(    .class("reftag"),
+                               .a(.href("/BigData/bigdata.json"),
+                                  .text("JSON for apps")) ),
+                       .li(    .class("reftag"),
+                               .a(
+                                   .href("/sitemap.xml"),
+                                   .text("Sitemap")) ),
+                       .li(    .class("reftag"),
+                               .a(.text("RSS feed"),
+                                  .href("/feed.rss")))
+                   ),
+                   
+                   .footer(for: context.site)
+               )
+           )
+     
+}
+
+ public static func htmlForMembersPage(for page: Page,
+                                 context: PublishingContext<Site>) -> HTML {
+    HTML(
+        .lang(context.site.language),
+        .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
+        .body(
+            .header(for: context, selectedSection: nil),
+            .wrapper(
+                .h2("Who Are We?"),
+                .div(
+                    .img(.src("/images/roseslogo.png"))),
+                .span("We play in \(bandfacts.venueLong)") ,
+                .ul(
+                    .li(.dl(
+                        .dt("Anthony"),
+                        .dd("Rhythm Guitar and ",.strong( "Vocals"))),
+                        .img(.src("/images/hd-anthony.jpg"))),
+                    .li(.dl(
+                        .dt("Bill"),
+                        .dd("Keyboards")),
+                        .img(.src("/images/hd-bill.jpg"))),
+                    .li(.dl(
+                        .dt("Brian"),
+                        .dd("Drums ", .s("and Vocals"))),
+                        .img(.src("/images/hd-brian.jpg"))),
+                    
+                    .li(.dl(
+                        .dt("Mark"),
+                        .dd("Lead Guitar and ", .ins("Vocals"))),
+                        .img(.src("/images/hd-mark.jpg"))),
+                    
+                    .li(.dl(
+                        .dt("Marty"),
+                        .dd("Bass")),
+                        .img(.src("/images/hd-marty.jpg")))
+                    
+                ),// ends ul
+                .h2( "Hire Us"),
+                .p("We Don't Play For Free"),
+                .form(
+                    .action("mailto:bildonner@gmail.com"),
+                    
+                    .fieldset(
+                        .label(.for("name"), "Name"),
+                        .input(.name("name"), .type(.text), .autofocus(false), .required(true))
+                    ),
+                    .fieldset(
+                        .label(.for("email"), "Email"),
+                        .input(.name("email"), .type(.email), .autocomplete(true), .required(true))),
+                    .fieldset(
+                        .label(.for("comments"), "Comments"),
+                        .input(.name("comments"), .type(.text) )
+                    ),
+                    .input(.type(.submit), .value("Send")),
+                    .input(.type(.reset), .value("Clear"))
+                )
+                
+            ),
+            .footer(for: context.site)
+        )
+    )
+    }
+}
