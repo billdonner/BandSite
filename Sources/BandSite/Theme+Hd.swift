@@ -10,23 +10,7 @@ import Plot
 import GigSiteAudio
 import LinkGrubber
 
-open class  BandSiteSwatches {
-    
-    public var topNavStuff: Node<HTML.BodyContext>
-    public  var indexUpper: Node<HTML.BodyContext>
-    public var indexLower: Node<HTML.BodyContext>
-    public var memberPageFull: Node<HTML.BodyContext>
-    
-    public init(  topNavStuff: Node<HTML.BodyContext>,
-                  indexUpper: Node<HTML.BodyContext>,
-                  indexLower: Node<HTML.BodyContext>,
-                  memberPageFull: Node<HTML.BodyContext>){
-        self.topNavStuff = topNavStuff
-        self.indexUpper = indexUpper
-        self.indexLower = indexLower
-        self.memberPageFull = memberPageFull
-    }
-}
+
 
 // these are pages that are built from swift code that is run before we call Publish...
 

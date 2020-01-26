@@ -134,7 +134,10 @@ static var allpagefuncs:[()throws->() ] = []//[addBillsFavorites,addBriansFavori
 public typealias IndexPageSig = (Index,PublishingContext<Hd>) throws -> HTML
 public typealias GeneralPageSig = (Page,PublishingContext<Hd>) throws -> HTML
 
+
+
 open class AudioSiteSpec:BandSiteProt&FileSiteProt {
+    
     public var artist : String
     public var venueShort : String
     public var venueLong : String
@@ -154,10 +157,10 @@ open class AudioSiteSpec:BandSiteProt&FileSiteProt {
     public var titleForMembersPage: String
     public var resourcePaths:Set<Path>
     public var description : String
-    public var topNavStuff:Node<HTML.BodyContext>//Node<PublishingContext<Hd>>?
-    public var indexUpper :Node<HTML.BodyContext>//Node<PublishingContext<Hd>>?
-       public var indexLower:Node<HTML.BodyContext>// Node<PublishingContext<Hd>>?
-       public var memberPageFull:Node<HTML.BodyContext>//Node<PublishingContext<Hd>>?
+    public var topNavStuff:Node<HTML.BodyContext>
+    public var indexUpper :Node<HTML.BodyContext>
+       public var indexLower:Node<HTML.BodyContext>
+       public var memberPageFull:Node<HTML.BodyContext>
     public var imagePath : Path?
     public var favicon: Favicon?
     
@@ -183,7 +186,7 @@ open class AudioSiteSpec:BandSiteProt&FileSiteProt {
         resourcePaths: Set<Path> = [],
         indexUpper: Node<HTML.BodyContext>,// Node<PublishingContext<Hd>>?,
         indexLower: Node<HTML.BodyContext>,// Node<PublishingContext<Hd>>?,
-    memberPageFull:Node<HTML.BodyContext>,//Node<PublishingContext<Hd>>?,
+         memberPageFull: Node<HTML.BodyContext>,//Node<PublishingContext<Hd>>?,
         topNavStuff:Node<HTML.BodyContext>,//  Node<PublishingContext<Hd>>?,
         imagePath : Path? = nil,
         favicon:Favicon? = nil
