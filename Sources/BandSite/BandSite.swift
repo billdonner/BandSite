@@ -92,12 +92,13 @@ public func bandsite_command_main(bandfacts:BandSiteFacts,rewriter:((String)->St
         var done = false
         crawler(rs,  { status in
             switch status {
-            case 200:   print("[crawler] it was a perfect crawl ")
-            default:  bletch()
+            case 200:  break
+            default:  bletch(); exit(0) 
             }
             done=true
         })
         while (done==false) { print("[crawler] sleep"); sleep(1);}
+        print("[crawler] it was a perfect crawl ")
     }
 } 
 
