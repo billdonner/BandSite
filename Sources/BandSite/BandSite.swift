@@ -88,13 +88,16 @@ public func bandsite_command_main(bandfacts:BandSiteFacts,rewriter:((String)->St
         let rs = [RootStart(name: incoming, urlstr: rooturl)]
         Hd.setup(bandfacts, lgFuncs: LgFuncs.standardAudioCrawlFuncs())
         print("[crawler] executing \(rooturl)")
-        let crawler = Hd.audioCrawler
+        let crawler = Hd.bandSiteRunCrawler
+        var done = false
         crawler(rs,  { status in
             switch status {
             case 200:   print("[crawler] it was a perfect crawl ")
             default:  bletch()
             }
+            done=true
         })
+        while (done==false) { print("[crawler] sleep"); sleep(1);}
     }
 } 
 

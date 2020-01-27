@@ -95,9 +95,6 @@ extension PublishingStep where Site == Hd {
 
 
 extension Hd {
-    
-
-    
     static func publisher() ->Int {
         do {
         let (steps,stepcount) = try PublishingStep<Hd>.allsteps()
@@ -109,14 +106,8 @@ extension Hd {
             return 0
         }
     }
-   public static func audioCrawler (_ roots:[RootStart],finally:@escaping (Int)->()) {
-    
-   // for t in bandfacts.allFavorites {
-       // t()
-        
-        // here we make a page for each under the path
-   // }
-   
+   public static func bandSiteRunCrawler (_ roots:[RootStart],finally:@escaping (Int)->()) {
+
         let pmf = AudioHTMLSupport(bandfacts: bandfacts,
                           lgFuncs: lgFuncs ).audioListPageMakerFunc
     
@@ -190,11 +181,10 @@ open class BandSiteFacts:BandSiteHTMLProt&FileSiteProt {
         titleForBlog: String = "",
         titleForMembersPage: String = "",
         resourcePaths: Set<Path> = [],
-        indexUpper: Node<HTML.BodyContext>,// Node<PublishingContext<Hd>>?,
-        indexLower: Node<HTML.BodyContext>,// Node<PublishingContext<Hd>>?,
-         memberPageFull: Node<HTML.BodyContext>,//Node<PublishingContext<Hd>>?,
-        topNavStuff:Node<HTML.BodyContext>,//  Node<PublishingContext<Hd>>?,
-
+        indexUpper: Node<HTML.BodyContext>,
+        indexLower: Node<HTML.BodyContext>,
+        memberPageFull: Node<HTML.BodyContext>,
+        topNavStuff:Node<HTML.BodyContext>,
         allFavorites: [Node<HTML.BodyContext>],
         
         imagePath : Path? = nil,

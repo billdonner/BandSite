@@ -8,9 +8,6 @@ import Foundation
 import Publish
 import Plot
 
-
-
-
 // these are pages that are built from swift code that is run before we call Publish...
 
 extension Theme where Site == Hd {
