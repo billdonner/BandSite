@@ -35,7 +35,9 @@ extension Theme where Site == Hd {
 
 //MARK: - these are all wired to Hd
 
-open class HdHTMLFactory: HTMLFactory {
+//open class
+public struct
+HdHTMLFactory: HTMLFactory {
     public typealias Site = Hd
     
     public func makeSectionHTML(for section: Section<Site>,

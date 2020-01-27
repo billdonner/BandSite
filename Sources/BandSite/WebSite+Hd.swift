@@ -18,8 +18,8 @@ import LinkGrubber
 // On top of John Sundell's configuration, we have everything else that's needed for LinkGrubber, etc
 
 var bandfacts: AudioSiteSpec!
-
-open class  Hd: Website {
+// open class
+public struct Hd: Website {
     public static func setup(_ bf:AudioSiteSpec){
         bandfacts = bf
     }
