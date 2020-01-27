@@ -63,6 +63,17 @@ extension LgFuncs {
     }
     
 }
+
+func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
+    // at this point we've plunked files into the designated directory
+    let start = Date()
+    // generate the site with the Hd theme
+    
+   
+    let published_counts = crawlResults.count1 + prcount + stepcount
+    let elapsed = Date().timeIntervalSince(start) / Double(published_counts)
+    print("[crawler] published \(published_counts) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
+}
 public func bandsite_command_main(bandfacts:BandSiteFacts,rewriter:((String)->String)) {
     
     func printUsage() {
@@ -92,22 +103,22 @@ public func bandsite_command_main(bandfacts:BandSiteFacts,rewriter:((String)->St
         var done = false
         crawler(rs,  { status in
             switch status {
-            case 200:  break
+            case 200:
+                
+                
+                break
             default:  bletch(); exit(0) 
             }
             done=true
         })
         while (done==false) { print("[crawler] sleep"); sleep(1);}
         print("[crawler] it was a perfect crawl ")
+        
+        let stepcount = Hd.publisher()
+        showCrawlStats(crawlResults,prepublishcount + stepcount)
+        
     }
 } 
-
-
-
-
-
-
-
 
 extension Node where Context: HTML.BodyContext {
     /// Add a `<figure>` HTML element within the current context.

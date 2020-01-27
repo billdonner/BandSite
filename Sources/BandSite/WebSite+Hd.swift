@@ -94,6 +94,7 @@ extension PublishingStep where Site == Hd {
 }
 
 
+
 extension Hd {
     static func publisher() ->Int {
         do {
@@ -118,6 +119,8 @@ extension Hd {
                         prepublishCount: bandfacts.allFavorites.count ,
                         publishFunc: Hd.publisher,
                         bandSiteParams: bandfacts) { status in // just runs
+                            
+                            
                         finally(status)
         }
     }
