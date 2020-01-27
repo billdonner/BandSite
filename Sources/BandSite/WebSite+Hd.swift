@@ -90,20 +90,7 @@ extension PublishingStep where Site == Hd {
 
 extension Hd {
     
-    static func runAllPrePublishingSteps () -> Int {
-//          do{
-//            let funcs : [() throws  ->  ()] = bandfacts.allFavorites //PublishingStep<Hd>.allpagefuncs
-//              for f in funcs {
-//                  try f()
-//              }
-//              return funcs.count
-//          }
-//          catch {
-//              return 0
-//          }
-        
-        return 0
-      }
+
     
     static func publisher() ->Int {
         do {
@@ -117,10 +104,17 @@ extension Hd {
         }
     }
    public static func audioCrawler (_ roots:[RootStart],finally:@escaping (Int)->()) {
+    
+   // for t in bandfacts.allFavorites {
+       // t()
+        
+        // here we make a page for each under the path
+   // }
+   
 
         let _ = AudioCrawler(roots:roots,
                         verbosity:  .none,
-                        prepublishFunc: runAllPrePublishingSteps,
+                        prepublishCount: bandfacts.allFavorites.count ,
                         publishFunc: Hd.publisher,
                         bandSiteParams: bandfacts) { status in // just runs
                         finally(status)
