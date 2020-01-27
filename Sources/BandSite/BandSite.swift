@@ -70,7 +70,7 @@ func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
     // generate the site with the Hd theme
     
    
-    let published_counts = crawlResults.count1 + prcount + stepcount
+    let published_counts = crawlResults.count1 + prcount
     let elapsed = Date().timeIntervalSince(start) / Double(published_counts)
     print("[crawler] published \(published_counts) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
 }
@@ -100,12 +100,13 @@ public func bandsite_command_main(bandfacts:BandSiteFacts,rewriter:((String)->St
         Hd.setup(bandfacts, lgFuncs: LgFuncs.standardAudioCrawlFuncs())
         print("[crawler] executing \(rooturl)")
         let crawler = Hd.bandSiteRunCrawler
+      
         var done = false
         crawler(rs,  { status in
             switch status {
             case 200:
                 
-                
+            
                 break
             default:  bletch(); exit(0) 
             }
@@ -114,9 +115,10 @@ public func bandsite_command_main(bandfacts:BandSiteFacts,rewriter:((String)->St
         while (done==false) { print("[crawler] sleep"); sleep(1);}
         print("[crawler] it was a perfect crawl ")
         
-        let stepcount = Hd.publisher()
-        showCrawlStats(crawlResults,prepublishcount + stepcount)
+        // this is the first time we hit the sites
         
+        let stepcount = Hd.publisher()
+         print("[crawler] Publish finished; steps:",stepcount)
     }
 } 
 
