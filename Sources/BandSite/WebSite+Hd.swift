@@ -161,6 +161,7 @@ open class AudioSiteSpec:BandSiteProt&FileSiteProt {
     public var indexUpper :Node<HTML.BodyContext>
        public var indexLower:Node<HTML.BodyContext>
        public var memberPageFull:Node<HTML.BodyContext>
+    public var   allFavorites: [Node<HTML.BodyContext>],
     public var imagePath : Path?
     public var favicon: Favicon?
     
@@ -188,6 +189,9 @@ open class AudioSiteSpec:BandSiteProt&FileSiteProt {
         indexLower: Node<HTML.BodyContext>,// Node<PublishingContext<Hd>>?,
          memberPageFull: Node<HTML.BodyContext>,//Node<PublishingContext<Hd>>?,
         topNavStuff:Node<HTML.BodyContext>,//  Node<PublishingContext<Hd>>?,
+
+        allFavorites: [Node<HTML.BodyContext>],
+        
         imagePath : Path? = nil,
         favicon:Favicon? = nil
     ){
@@ -214,6 +218,7 @@ open class AudioSiteSpec:BandSiteProt&FileSiteProt {
         self.indexLower = indexLower
         self.memberPageFull = memberPageFull
         self.topNavStuff = topNavStuff
+        self.allFavorites = allFavorites
         self.imagePath = imagePath
         self.favicon = favicon
         //
