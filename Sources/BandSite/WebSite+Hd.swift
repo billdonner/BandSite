@@ -17,11 +17,16 @@ import LinkGrubber
 // This type acts as the configuration for your website.
 // On top of John Sundell's configuration, we have everything else that's needed for LinkGrubber, etc
 
-var bandfacts: AudioSiteSpec!
+
+
 // open class
 public struct Hd: Website {
-    public static func setup(_ bf:AudioSiteSpec){
+     public static var bandfacts: BandSiteFacts!
+     public static var lgFuncs: LgFuncs!
+    
+    public static func setup(_ bf:BandSiteFacts, lgFuncs lf:LgFuncs){
         bandfacts = bf
+        lgFuncs = lf
     }
 
     public enum SectionID: String, WebsiteSectionID {
@@ -64,8 +69,9 @@ extension PublishingStep where Site == Hd {
     }
     static func makeMembersPageStep ( ) throws -> Self {
         madePageCount += 1
+        let x = Hd.bandfacts!
         return PublishingStep<Hd>.addPage(Page(path:"/about",
-                                               content: Content(title:bandfacts.titleForMembersPage, description:bandfacts.description )))
+                                               content: Content(title:x.titleForMembersPage, description:x.description )))
     }
     static func addSectionTitlesStep() -> Self {
         .step(named: "Default section titles") { context in
@@ -74,13 +80,13 @@ extension PublishingStep where Site == Hd {
                 
                 switch section.id {
                 case .audiosessions:
-                    section.title = bandfacts.titleForAudioSessions
+                    section.title = Hd.bandfacts!.titleForAudioSessions
                 case .favorites:
-                    section.title = bandfacts.titleForFavoritesSection
+                    section.title = Hd.bandfacts!.titleForFavoritesSection
                 case .about:
-                    section.title = bandfacts.titleForMembersPage
+                    section.title = Hd.bandfacts!.titleForMembersPage
                 case .blog:
-                    section.title = bandfacts.titleForBlog
+                    section.title = Hd.bandfacts!.titleForBlog
                 }
             }
         }
@@ -111,9 +117,13 @@ extension Hd {
         // here we make a page for each under the path
    // }
    
-
+        let pmf = AudioHTMLSupport(bandfacts: bandfacts,
+                          lgFuncs: lgFuncs ).audioListPageMakerFunc
+    
         let _ = AudioCrawler(roots:roots,
                         verbosity:  .none,
+                        lgFuncs: lgFuncs,
+                        pageMaker: pmf,
                         prepublishCount: bandfacts.allFavorites.count ,
                         publishFunc: Hd.publisher,
                         bandSiteParams: bandfacts) { status in // just runs
@@ -131,7 +141,7 @@ public typealias GeneralPageSig = (Page,PublishingContext<Hd>) throws -> HTML
 
 
 
-open class AudioSiteSpec:BandSiteProt&FileSiteProt {
+open class BandSiteFacts:BandSiteHTMLProt&FileSiteProt {
     
     public var artist : String
     public var venueShort : String
@@ -154,9 +164,9 @@ open class AudioSiteSpec:BandSiteProt&FileSiteProt {
     public var description : String
     public var topNavStuff:Node<HTML.BodyContext>
     public var indexUpper :Node<HTML.BodyContext>
-       public var indexLower:Node<HTML.BodyContext>
-       public var memberPageFull:Node<HTML.BodyContext>
-    public var   allFavorites: [Node<HTML.BodyContext>]
+    public var indexLower:Node<HTML.BodyContext>
+    public var memberPageFull:Node<HTML.BodyContext>
+    public var allFavorites: [Node<HTML.BodyContext>]
     public var imagePath : Path?
     public var favicon: Favicon?
     

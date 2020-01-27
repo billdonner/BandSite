@@ -7,8 +7,7 @@
 import Foundation
 import Publish
 import Plot
-import GigSiteAudio
-import LinkGrubber
+
 
 
 
@@ -18,26 +17,17 @@ extension Theme where Site == Hd {
     // a custom theme for bands
     static var hd: Self {
         Theme(
-            htmlFactory: HdHTMLFactory(),
-            resourcePaths: bandfacts.resourcePaths
+            htmlFactory: BandsiteHTMLFactory(),
+            resourcePaths: Hd.bandfacts.resourcePaths
         )
     }
 }
-
-// custom html
-//public protocol SOB {
-//    static   func htmlForTestPage(for page: Page,context: PublishingContext<Hd>) -> HTML
-//    static   func htmlForIndexPage(for index: Index,context:PublishingContext<Hd>) -> HTML
-//    static   func htmlForMembersPage(for page: Page, context: PublishingContext<Hd>) -> HTML
-//}
-
 
 
 //MARK: - these are all wired to Hd
 
 //open class
-public struct
-HdHTMLFactory: HTMLFactory {
+public struct BandsiteHTMLFactory: HTMLFactory {
     public typealias Site = Hd
     
     public func makeSectionHTML(for section: Section<Site>,
@@ -143,7 +133,7 @@ HdHTMLFactory: HTMLFactory {
             .body(
                 .header(for: context, selectedSection: nil),
                 .wrapper(
-                    bandfacts.indexUpper,
+                    Hd.bandfacts.indexUpper,
                     
                     .itemList( for: context.someItems(max:5, sortedBy: \.date,
                                                       order: .descending
@@ -151,7 +141,7 @@ HdHTMLFactory: HTMLFactory {
                                on: context.site
                     ),
                     
-                    bandfacts.indexLower,
+                    Hd.bandfacts.indexLower,
                     
                     .footer(for: context.site)
                 )
@@ -165,9 +155,9 @@ HdHTMLFactory: HTMLFactory {
         var result : Node<HTML.BodyContext>
         switch page.path {
             
-        case "/about":  result =  bandfacts!.memberPageFull
+        case "/about":  result =  Hd.bandfacts!.memberPageFull
             
-        case "/test" : result =  bandfacts!.memberPageFull
+        case "/test" : result = Hd.bandfacts!.memberPageFull
             
         default: fatalError("cant make!PageHTML for \(page) context:\(context.site.name)")
         }
@@ -200,7 +190,7 @@ extension Node where Context == HTML.BodyContext {
                 .a(.class("site-name"), .href("/"), .text(context.site.name)),
                 .if(sectionIDs.count > 1,
                     .nav(
-                        bandfacts.topNavStuff
+                        Hd.bandfacts.topNavStuff
                     )
                 )// if
             )//wrapper
@@ -294,7 +284,7 @@ extension PublishingContext where Site == Hd  {
 
 
 ///this would be best in downtown
-extension HdHTMLFactory   {
+extension BandsiteHTMLFactory   {
     
     public static func htmlForTestPage(for page: Page,
                                        context: PublishingContext<Hd>) -> HTML {
@@ -315,14 +305,14 @@ extension HdHTMLFactory   {
             .body(
                 .header(for: context, selectedSection: nil),
                 .wrapper(
-                    bandfacts.indexUpper,
+                    Hd.bandfacts.indexUpper,
                     .itemList( for: context.someItems(max:5, sortedBy: \.date,
                                                       order: .descending
                         ),
                                on: context.site
                     )),
                 
-                bandfacts.indexLower,
+                Hd.bandfacts.indexLower,
                 
                 .footer(for: context.site)
             )
@@ -339,7 +329,7 @@ extension HdHTMLFactory   {
             .body(
                 .header(for: context, selectedSection: nil),
                 .wrapper(
-                    bandfacts.memberPageFull
+                    Hd.bandfacts.memberPageFull
                 ),
                 .footer(for: context.site)
             )
