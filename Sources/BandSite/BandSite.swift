@@ -3,9 +3,9 @@ import LinkGrubber
 
 public struct BandSite {
     var text = "Hello, World!"
+}
 
-
-public static func bandsite_command_main(bandfacts:AudioSiteSpec,rewriter:((String)->String)) {
+public func bandsite_command_main(bandfacts:AudioSiteSpec,rewriter:((String)->String)) {
     
     func printUsage() {
         let processinfo = ProcessInfo()
@@ -38,7 +38,4 @@ public static func bandsite_command_main(bandfacts:AudioSiteSpec,rewriter:((Stri
             }
         })
     }
-}
-
-}
-
+} 
