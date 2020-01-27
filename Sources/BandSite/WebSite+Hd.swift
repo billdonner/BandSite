@@ -91,16 +91,18 @@ extension PublishingStep where Site == Hd {
 extension Hd {
     
     static func runAllPrePublishingSteps () -> Int {
-          do{
-              let funcs : [() throws  ->  ()] = PublishingStep<Hd>.allpagefuncs
-              for f in funcs {
-                  try f()
-              }
-              return funcs.count
-          }
-          catch {
-              return 0
-          }
+//          do{
+//            let funcs : [() throws  ->  ()] = bandfacts.allFavorites //PublishingStep<Hd>.allpagefuncs
+//              for f in funcs {
+//                  try f()
+//              }
+//              return funcs.count
+//          }
+//          catch {
+//              return 0
+//          }
+        
+        return 0
       }
     
     static func publisher() ->Int {
@@ -110,7 +112,7 @@ extension Hd {
             return stepcount
         }
         catch {
-            print("[crawler] could not publish")
+            print("[crawler] could not publish \(error)")
             return 0
         }
     }
@@ -128,7 +130,6 @@ extension Hd {
 
 extension PublishingStep where Site == Hd {
 
-static var allpagefuncs:[()throws->() ] = []//[addBillsFavorites,addBriansFavorites]
 }
 
 public typealias IndexPageSig = (Index,PublishingContext<Hd>) throws -> HTML
@@ -161,7 +162,7 @@ open class AudioSiteSpec:BandSiteProt&FileSiteProt {
     public var indexUpper :Node<HTML.BodyContext>
        public var indexLower:Node<HTML.BodyContext>
        public var memberPageFull:Node<HTML.BodyContext>
-    public var   allFavorites: [Node<HTML.BodyContext>],
+    public var   allFavorites: [Node<HTML.BodyContext>]
     public var imagePath : Path?
     public var favicon: Favicon?
     
