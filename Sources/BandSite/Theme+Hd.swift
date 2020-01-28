@@ -18,112 +18,169 @@ extension Theme where Site == Hd {
             resourcePaths: Hd.bandfacts.resourcePaths
         )
     }
-}
-
-
-//MARK: - these are all wired to Hd
-
-//open class
-public struct BandsiteHTMLFactory: HTMLFactory {
-    public typealias Site = Hd
-    
-    public func makeSectionHTML(for section: Section<Site>,
-                                context: PublishingContext<Site>) throws -> HTML {
-        HTML(
-            .lang(context.site.language),
-            .head(for: section, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-            .body(
-                .header(for: context, selectedSection: section.id),
-                .wrapper(
-                    .h1(.text(section.title)),
-                    .itemList(for: section.items, on: context.site)
-                ),
-                .footer(for: context.site)
+    private struct BandsiteHTMLFactory: HTMLFactory {
+        public typealias Site = Hd
+        
+        public func makeSectionHTML(for section: Section<Site>,
+                                    context: PublishingContext<Site>) throws -> HTML {
+            HTML(
+                .lang(context.site.language),
+                .head(for: section, on: context.site,stylesheetPaths:["/hdstyles.css"]),
+                .body(
+                    .header(for: context, selectedSection: section.id),
+                    .wrapper(
+                        .h1(.text(section.title)),
+                        .itemList(for: section.items, on: context.site)
+                    ),
+                    .footer(for: context.site)
+                )
             )
-        )
-    }
-    
-    public func makeItemHTML(for item: Item<Site>,
-                             context: PublishingContext<Site>) throws -> HTML {
-        HTML(
-            .lang(context.site.language),
-            .head(for: item, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-            .body(
-                .class("item-page"),
-                .header(for: context, selectedSection: item.sectionID),
-                .wrapper(
-                    .article(
-                        .div(
-                            .class("content"),
-                            .contentBody(item.body)
-                        ),
-                        .span("Tagged with: "),
-                        .tagList(for: item, on: context.site)
-                    )
-                ),
-                .footer(for: context.site)
+        }
+        
+        public func makeItemHTML(for item: Item<Site>,
+                                 context: PublishingContext<Site>) throws -> HTML {
+            HTML(
+                .lang(context.site.language),
+                .head(for: item, on: context.site,stylesheetPaths:["/hdstyles.css"]),
+                .body(
+                    .class("item-page"),
+                    .header(for: context, selectedSection: item.sectionID),
+                    .wrapper(
+                        .article(
+                            .div(
+                                .class("content"),
+                                .contentBody(item.body)
+                            ),
+                            .span("Tagged with: "),
+                            .tagList(for: item, on: context.site)
+                        )
+                    ),
+                    .footer(for: context.site)
+                )
             )
-        )
-    }
-    
-    public  func makeTagListHTML(for page: TagListPage,
-                                 context: PublishingContext<Site>) throws -> HTML? {
-        HTML(
-            .lang(context.site.language),
-            .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-            .body(
-                .header(for: context, selectedSection: nil),
-                .wrapper(
-                    .h1("Browse all tags"),
-                    .ul(
-                        .class("all-tags"),
-                        .forEach(page.tags.sorted()) { tag in
-                            .li(
-                                .class("tag"),  .a(.href(context.site.path(for: tag)),
-                                                   .text(tag.string)
+        }
+        
+        public  func makeTagListHTML(for page: TagListPage,
+                                     context: PublishingContext<Site>) throws -> HTML? {
+            HTML(
+                .lang(context.site.language),
+                .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
+                .body(
+                    .header(for: context, selectedSection: nil),
+                    .wrapper(
+                        .h1("Browse all tags"),
+                        .ul(
+                            .class("all-tags"),
+                            .forEach(page.tags.sorted()) { tag in
+                                .li(
+                                    .class("tag"),  .a(.href(context.site.path(for: tag)),
+                                                       .text(tag.string)
+                                    )
                                 )
-                            )
-                        }
-                    )
-                ),
-                .footer(for: context.site)
+                            }
+                        )
+                    ),
+                    .footer(for: context.site)
+                )
             )
-        )
+        }
+        
+        public  func makeTagDetailsHTML(for page: TagDetailsPage,
+                                        context: PublishingContext<Site>) throws -> HTML? {
+            HTML(
+                .lang(context.site.language),
+                .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
+                .body(
+                    .header(for: context, selectedSection: nil),
+                    .wrapper(
+                        .h1(
+                            "Tagged with ",
+                            .span(.class("tag"), .text(page.tag.string))
+                        ),
+                        .a(
+                            .class("browse-all"),
+                            .text("Browse all tags"),
+                            .href(context.site.tagListPath)
+                        ),
+                        .itemList(
+                            for: context.items(
+                                taggedWith: page.tag,
+                                sortedBy: \.date,
+                                order: .descending
+                            ),
+                            on: context.site
+                        )
+                    ),
+                    .footer(for: context.site)
+                )
+            )
+        }
+        
+        public   func makeIndexHTML(for index: Index,
+                                    context: PublishingContext<Hd>) throws -> HTML {
+            HTML(
+                .lang(context.site.language),
+                .head(for: index, on: context.site,stylesheetPaths:["/hdstyles.css"]),
+                .body(
+                    .header(for: context, selectedSection: nil),
+                    .wrapper(
+                        Hd.bandfacts.indexUpper,
+                        
+                        .itemList( for: context.someItems(max:5, sortedBy: \.date,
+                                                          order: .descending
+                            ),
+                                   on: context.site
+                        ),
+                        
+                        Hd.bandfacts.indexLower,
+                        
+                        .footer(for: context.site)
+                    )
+                )
+            )
+        }
+        
+        public   func makePageHTML(for page: Page,
+                                   context: PublishingContext<Hd>) throws -> HTML {
+            
+            var result : Node<HTML.BodyContext>
+            switch page.path {
+                
+            case "/about":  result =  Hd.bandfacts!.memberPageFull
+                
+            case "/test" : result = Hd.bandfacts!.memberPageFull
+                
+            default: fatalError("cant make!PageHTML for \(page) context:\(context.site.name)")
+            }
+            
+            return  HTML(
+                .lang(context.site.language),
+                .head(for: page, on: context.site),
+                .body(
+                    .header(for: context, selectedSection: nil),
+                    .wrapper(result),
+                    .footer(for: context.site)
+                )
+            )
+        }
     }
     
-    public  func makeTagDetailsHTML(for page: TagDetailsPage,
-                                    context: PublishingContext<Site>) throws -> HTML? {
+    ///this would be best in downtown
+    
+    
+    public static func htmlForTestPage(for page: Page,
+                                       context: PublishingContext<Hd>) -> HTML {
         HTML(
             .lang(context.site.language),
             .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
             .body(
-                .header(for: context, selectedSection: nil),
-                .wrapper(
-                    .h1(
-                        "Tagged with ",
-                        .span(.class("tag"), .text(page.tag.string))
-                    ),
-                    .a(
-                        .class("browse-all"),
-                        .text("Browse all tags"),
-                        .href(context.site.tagListPath)
-                    ),
-                    .itemList(
-                        for: context.items(
-                            taggedWith: page.tag,
-                            sortedBy: \.date,
-                            order: .descending
-                        ),
-                        on: context.site
-                    )
-                ),
+                Node.header(for: context, selectedSection: nil),
+                .wrapper(.h2(.text("TEST PAGE"))),
                 .footer(for: context.site)
-            )
-        )
+            ))
     }
     
-    public   func makeIndexHTML(for index: Index,
-                                context: PublishingContext<Hd>) throws -> HTML {
+    public static func htmlForIndexPage(for index: Index,context:PublishingContext<Hd>) -> HTML {
         HTML(
             .lang(context.site.language),
             .head(for: index, on: context.site,stylesheetPaths:["/hdstyles.css"]),
@@ -131,40 +188,31 @@ public struct BandsiteHTMLFactory: HTMLFactory {
                 .header(for: context, selectedSection: nil),
                 .wrapper(
                     Hd.bandfacts.indexUpper,
-                    
                     .itemList( for: context.someItems(max:5, sortedBy: \.date,
                                                       order: .descending
                         ),
                                on: context.site
-                    ),
-                    
-                    Hd.bandfacts.indexLower,
-                    
-                    .footer(for: context.site)
-                )
+                    )),
+                
+                Hd.bandfacts.indexLower,
+                
+                .footer(for: context.site)
             )
         )
+        
     }
     
-    public   func makePageHTML(for page: Page,
-                               context: PublishingContext<Hd>) throws -> HTML {
-        
-        var result : Node<HTML.BodyContext>
-        switch page.path {
-            
-        case "/about":  result =  Hd.bandfacts!.memberPageFull
-            
-        case "/test" : result = Hd.bandfacts!.memberPageFull
-            
-        default: fatalError("cant make!PageHTML for \(page) context:\(context.site.name)")
-        }
-        
-        return  HTML(
+    
+    public static func htmlForMembersPage(for page: Page,
+                                          context: PublishingContext<Site>) -> HTML {
+        HTML(
             .lang(context.site.language),
-            .head(for: page, on: context.site),
+            .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
             .body(
                 .header(for: context, selectedSection: nil),
-                .wrapper(result),
+                .wrapper(
+                    Hd.bandfacts.memberPageFull
+                ),
                 .footer(for: context.site)
             )
         )
@@ -238,12 +286,6 @@ extension Node where Context == HTML.BodyContext {
             ))
     }
 }
-
-
-////
-
-
-
 extension SortOrder {
     func makeASorter<T, V: Comparable>(
         forKeyPath keyPath: KeyPath<T, V>
@@ -260,7 +302,6 @@ extension SortOrder {
         }
     }
 }
-//MARK: - These pages are built with Plot and then AddPage
 extension PublishingContext where Site == Hd  {
     /// Return someitems within this website, sorted by a given key path.
     ///  - parameter max: Max Number of items to return
@@ -276,61 +317,6 @@ extension PublishingContext where Site == Hd  {
         let x = items.sorted(
             by: order.makeASorter(forKeyPath: sortingKeyPath))
         return x.dropLast((x.count-max)>0 ? x.count-max : 0)
-    }
-}
-
-
-///this would be best in downtown
-extension BandsiteHTMLFactory   {
-    
-    public static func htmlForTestPage(for page: Page,
-                                       context: PublishingContext<Hd>) -> HTML {
-        HTML(
-            .lang(context.site.language),
-            .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-            .body(
-                Node.header(for: context, selectedSection: nil),
-                .wrapper(.h2(.text("TEST PAGE"))),
-                .footer(for: context.site)
-            ))
-    }
-    
-    public static func htmlForIndexPage(for index: Index,context:PublishingContext<Hd>) -> HTML {
-        HTML(
-            .lang(context.site.language),
-            .head(for: index, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-            .body(
-                .header(for: context, selectedSection: nil),
-                .wrapper(
-                    Hd.bandfacts.indexUpper,
-                    .itemList( for: context.someItems(max:5, sortedBy: \.date,
-                                                      order: .descending
-                        ),
-                               on: context.site
-                    )),
-                
-                Hd.bandfacts.indexLower,
-                
-                .footer(for: context.site)
-            )
-        )
-        
-    }
-    
-    
-    public static func htmlForMembersPage(for page: Page,
-                                          context: PublishingContext<Site>) -> HTML {
-        HTML(
-            .lang(context.site.language),
-            .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-            .body(
-                .header(for: context, selectedSection: nil),
-                .wrapper(
-                    Hd.bandfacts.memberPageFull
-                ),
-                .footer(for: context.site)
-            )
-        )
     }
 }
 

@@ -22,11 +22,11 @@ import LinkGrubber
 // open class
 public struct Hd: Website {
      public static var bandfacts: BandSiteFacts!
-     public static var lgFuncs: LgFuncs!
+    // public static var xlgFuncs: LgFuncs!
     
-    public static func setup(_ bf:BandSiteFacts, lgFuncs lf:LgFuncs){
+    public static func setup(_ bf:BandSiteFacts){//}, lgFuncs lf:LgFuncs){
         bandfacts = bf
-        lgFuncs = lf
+       // xlgFuncs = lf
     }
 
     public enum SectionID: String, WebsiteSectionID {
@@ -55,6 +55,10 @@ public struct Hd: Website {
   
 }
 
+
+extension Hd {
+
+}
 
 
 extension PublishingStep where Site == Hd {
@@ -94,41 +98,6 @@ extension PublishingStep where Site == Hd {
 }
 
 
-
-extension Hd {
-    static func publisher() ->Int {
-        do {
-        let (steps,stepcount) = try PublishingStep<Hd>.allsteps()
-                   try Hd().publish(withTheme: .hd, additionalSteps:steps)
-            return stepcount
-        }
-        catch {
-            print("[crawler] could not publish \(error)")
-            return 0
-        }
-    }
-   public static func bandSiteRunCrawler (_ roots:[RootStart],finally:@escaping (Int)->()) {
-
-        let pmf = AudioHTMLSupport(bandfacts: bandfacts,
-                          lgFuncs: lgFuncs ).audioListPageMakerFunc
-    
-        let _ = AudioCrawler(roots:roots,
-                        verbosity:  .none,
-                        lgFuncs: lgFuncs,
-                        pageMaker: pmf,
-                        prepublishCount: bandfacts.allFavorites.count ,
-                        publishFunc: Hd.publisher,
-                        bandSiteParams: bandfacts) { status in // just runs
-                            
-                            
-                        finally(status)
-        }
-    }
-}
-
-extension PublishingStep where Site == Hd {
-
-}
 
 public typealias IndexPageSig = (Index,PublishingContext<Hd>) throws -> HTML
 public typealias GeneralPageSig = (Page,PublishingContext<Hd>) throws -> HTML

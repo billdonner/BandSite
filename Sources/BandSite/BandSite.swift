@@ -3,6 +3,8 @@ import LinkGrubber
 import GigSiteAudio
 import Kanna 
 import Plot
+import Publish
+
 public struct BandSite {
     var text = "Hello, World!"
 }
@@ -15,12 +17,10 @@ public protocol   BandSiteHTMLProt: class  {
     var venueLong : String { get set }
     var crawlTags:[String] { get set }
 }
-
+let lgFuncs =  LgFuncs.standardAudioCrawlFuncs()
 extension LgFuncs {
-    
-
     // kanna specific
-   private static func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ,links: inout [LinkElement]) throws -> String {
+    private static func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ,links: inout [LinkElement]) throws -> String {
         
         func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
             if let lk = href, //link["href"] ,
@@ -54,8 +54,8 @@ extension LgFuncs {
         }
         return title
     }
-
-        static  func standardAudioCrawlFuncs() -> LgFuncs {
+    
+    static  func standardAudioCrawlFuncs() -> LgFuncs {
         return LgFuncs(imageExtensions: ["jpg","jpeg","png"],
                        audioExtensions: ["mp3","mpeg","wav"],
                        markdownExtensions: ["md", "markdown", "txt", "text"],
@@ -64,17 +64,15 @@ extension LgFuncs {
     
 }
 
+public func bandsite_command_main(bandfacts:BandSiteFacts,rewriter:((String)->String)) {
 func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
     // at this point we've plunked files into the designated directory
     let start = Date()
     // generate the site with the Hd theme
-    
-   
     let published_counts = crawlResults.count1 + prcount
     let elapsed = Date().timeIntervalSince(start) / Double(published_counts)
     print("[crawler] published \(published_counts) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
 }
-public func bandsite_command_main(bandfacts:BandSiteFacts,rewriter:((String)->String)) {
     
     func printUsage() {
         let processinfo = ProcessInfo()
@@ -85,7 +83,36 @@ public func bandsite_command_main(bandfacts:BandSiteFacts,rewriter:((String)->St
         print("\(executableName) s or m or l")
         
     }
+    func publishBandSite() ->Int {
+        do {
+            let (steps,stepcount) = try PublishingStep<Hd>.allsteps()
+            try Hd().publish(withTheme: .hd, additionalSteps:steps)
+            return stepcount
+        }
+        catch {
+            print("[crawler] could not publish \(error)")
+            return 0
+        }
+    }
+    func bandSiteRunCrawler (_ roots:[RootStart],finally:@escaping (Int)->()) {
+        
+        let pmf = AudioHTMLSupport(bandfacts: bandfacts,
+                                   lgFuncs: lgFuncs ).audioListPageMakerFunc
+        
+        let _ = AudioCrawler(roots:roots,
+                             verbosity:  .none,
+                             lgFuncs: lgFuncs,
+                             pageMaker: pmf,
+                           //  prepublishCount: bandfacts.allFavorites.count ,
+                             //
+        bandSiteParams: bandfacts) { status in // just runs
+            
+            
+            finally(status)
+        }
+    }
     // the main program starts right here really starts here
+
     
     do {
         let bletch = { print("[crawler] bad command \(CommandLine.arguments)"  )
@@ -97,16 +124,16 @@ public func bandsite_command_main(bandfacts:BandSiteFacts,rewriter:((String)->St
         let incoming = String(arg1.first ?? "X")
         let rooturl = rewriter(incoming)
         let rs = [RootStart(name: incoming, urlstr: rooturl)]
-        Hd.setup(bandfacts, lgFuncs: LgFuncs.standardAudioCrawlFuncs())
+        Hd.setup(bandfacts)
         print("[crawler] executing \(rooturl)")
-        let crawler = Hd.bandSiteRunCrawler
-      
+        let crawler = bandSiteRunCrawler
+        
         var done = false
         crawler(rs,  { status in
             switch status {
             case 200:
                 
-            
+                
                 break
             default:  bletch(); exit(0) 
             }
@@ -116,9 +143,11 @@ public func bandsite_command_main(bandfacts:BandSiteFacts,rewriter:((String)->St
         print("[crawler] it was a perfect crawl ")
         
         // this is the first time we hit the sites
+//
+//        let stepcount = publishBandSite()
+//        print("[crawler] Publish finished; steps:",stepcount)
         
-        let stepcount = Hd.publisher()
-         print("[crawler] Publish finished; steps:",stepcount)
+        return
     }
 } 
 
