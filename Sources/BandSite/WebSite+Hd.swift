@@ -57,9 +57,33 @@ public struct Hd: Website {
 
 
 extension Hd {
+    public static func publisher() ->Int {
+        do {
+        let (steps,stepcount) = try PublishingStep<Hd>.allsteps()
+                   try Hd().publish(withTheme: .hd, additionalSteps:steps)
+            return stepcount
+        }
+        catch {
+            print("[crawler] could not publish \(error)")
+            return 0
+        }
+    }
+   static func bandSiteRunCrawler (_ roots:[RootStart],finally:@escaping (Int)->()) {
 
+        let pmf = AudioHTMLSupport(bandfacts: bandfacts,
+                          lgFuncs: lgFuncs ).audioListPageMakerFunc
+    
+        let _ = AudioCrawler(roots:roots,
+                        verbosity:  .none,
+                        lgFuncs: lgFuncs,
+                        pageMaker: pmf,
+                        bandSiteParams: bandfacts) { status in // just runs
+                            
+                            
+                        finally(status)
+        }
+    }
 }
-
 
 extension PublishingStep where Site == Hd {
     static var madePageCount = 0
