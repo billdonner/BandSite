@@ -5,9 +5,7 @@ import Kanna
 import Plot
 import Publish
 
-public struct BandSite {
-    var text = "Hello, World!"
-}
+
 let letters = CharacterSet.letters
 let digits = CharacterSet.decimalDigits
 
@@ -248,7 +246,7 @@ open class AudioHTMLSupport {
         
         let immd = ImagesAndMarkdown.generateImagesAndMarkdownFromRemoteDirectoryAssets(links:links,lgFuncs:lgFuncs)
         
-        let cookie = get_fortune_cookie()
+        let cookie = Fortunes.get_fortune_cookie()
         
         // it seems essential to put the title in here instead of inside the plot Node above
         func   markdownmetadata(stuff:String)-> String {

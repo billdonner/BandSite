@@ -6,7 +6,11 @@
 //
 
 import Foundation
-let fortunes = [
+public struct BandSite {
+    var text = "Hello, World!"
+}
+open class Fortunes {
+static let fortunes = [
   "With integrity and consistency -- your credits are piling up.",
   "Reach out your hand today to support others who need you.",
   "It is not the outside riches bit the inside ones that produce happiness.",
@@ -263,6 +267,7 @@ let fortunes = [
   "May the warm winds of heaven blow softly upon your sprint."
 ]
 
-func get_fortune_cookie()  -> String {
+static public func get_fortune_cookie()  -> String {
     fortunes[Int.random(in: 0..<fortunes.count)]
+}
 }
