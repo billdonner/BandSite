@@ -1,6 +1,6 @@
 # BandSite
 
-0.0.25
+0.0.26
 
 
 down to almost nothing - stay tuned
