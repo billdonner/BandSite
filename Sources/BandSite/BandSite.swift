@@ -75,9 +75,9 @@ open class BandSiteFacts:BandSiteHTMLProt&FileSiteProt {
 
 
 
-extension LgFuncs {
+public extension LgFuncs {
     // kanna specific
-    private static func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ,links: inout [LinkElement]) throws -> String {
+    public static func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ,links: inout [LinkElement]) throws -> String {
         
         func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
             if let lk = href, //link["href"] ,
@@ -112,12 +112,7 @@ extension LgFuncs {
         return title
     }
     
-    static  func standardAudioCrawlFuncs() -> LgFuncs {
-        return LgFuncs(imageExtensions: ["jpg","jpeg","png"],
-                       audioExtensions: ["mp3","mpeg","wav"],
-                       markdownExtensions: ["md", "markdown", "txt", "text"],
-                       scrapeAndAbsorbFunc: kannaScrapeAndAbsorb)
-    }
+
     
 }
 
