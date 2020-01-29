@@ -9,12 +9,71 @@ import Publish
 let letters = CharacterSet.letters
 let digits = CharacterSet.decimalDigits
 
-public protocol   BandSiteHTMLProt: class  {
+  protocol   BandSiteHTMLProt: class  {
     var artist : String { get set }
     var venueShort : String { get set }
     var venueLong : String { get set }
     var crawlTags:[String] { get set }
 }
+open class BandSiteFacts:BandSiteHTMLProt&FileSiteProt {
+    public var artist : String
+    public var venueShort : String
+    public var venueLong : String
+    public var crawlTags:[String]
+    public var pathToContentDir : String
+    public var pathToOutputDir: String
+    public var matchingURLPrefix : String
+    public var specialFolderPaths: [String]
+    public var language : Language
+    public var url : String
+    public var name : String
+    public var shortname: String
+    public var resourcePaths:Set<Path>
+    public var description : String
+    public var imagePath : Path?
+    public var favicon: Favicon?
+    
+    public init(
+        artist : String = "",
+        venueShort : String = "",
+        venueLong : String  = "",
+        crawlTags:[String]  = [],
+        pathToContentDir : String = "",
+        pathToOutputDir : String = "",
+        matchingURLPrefix :String = "",
+        specialFolderPaths :[String] = [],
+        language : Language = .english,
+        url : String = "",
+        name : String = "",
+        shortname : String = "",
+        description : String = "",
+        resourcePaths: Set<Path> = [],
+        imagePath : Path? = nil,
+        favicon:Favicon? = nil
+    ){
+        self.artist = artist
+        self.venueShort = venueShort
+        self.venueLong = venueLong
+        self.crawlTags = crawlTags
+        self.pathToContentDir = pathToContentDir
+        self.pathToOutputDir = pathToOutputDir
+        self.matchingURLPrefix = matchingURLPrefix
+        self.specialFolderPaths = specialFolderPaths
+        self.language = language
+        self.url = url
+        self.name = name
+        self.shortname = shortname
+        self.resourcePaths = resourcePaths
+        self.description = description
+        self.imagePath = imagePath
+        self.favicon = favicon
+        //
+    }
+    
+}
+
+
+
 
 extension LgFuncs {
     // kanna specific
@@ -62,7 +121,7 @@ extension LgFuncs {
     
 }
 
-public func generateBandSite(bandfacts:BandSiteHTMLProt&FileSiteProt ,rewriter:((String)->String),lgFuncs:LgFuncs) {
+public func generateBandSite(bandfacts:BandSiteFacts ,rewriter:((String)->String),lgFuncs:LgFuncs) {
 func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
     // at this point we've plunked files into the designated directory
     let start = Date()
@@ -151,10 +210,10 @@ extension Node where Context: HTML.BodyContext {
 }
 
 
-open class AudioHTMLSupport {
+final class AudioHTMLSupport {
     let bandfacts:FileSiteProt&BandSiteHTMLProt
     let lgFuncs: LgFuncs
-    public init(bandfacts:FileSiteProt&BandSiteHTMLProt,lgFuncs:LgFuncs)
+ init(bandfacts:FileSiteProt&BandSiteHTMLProt,lgFuncs:LgFuncs)
     {
         self.bandfacts = bandfacts
         self.lgFuncs = lgFuncs
