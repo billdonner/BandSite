@@ -1,9 +1,88 @@
 import Foundation
 import LinkGrubber
-import GigSiteAudio
 import Kanna 
 import Plot
 import Publish 
+
+
+// these functions must be supplied by the caller of LinkGrubber.grub()
+func scraperReturnsNothing (_  lgFuncs:LgFuncs,url: URL, s: String ) throws -> ScrapeAndAbsorbBlock {
+    print("[LinkGrubber] scraping \(url)")
+    return ScrapeAndAbsorbBlock(title: "scraperReturnsNothing",links: [])
+}
+
+// for testing only , we'll use kanna
+
+func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ) throws -> ScrapeAndAbsorbBlock {
+    func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
+        if let lk = href, //link["href"] ,
+            let url = URL(string:lk,relativeTo:relativeTo) ,
+            let linktype = processExtension(lgFuncs: lgFuncs, url:url, relativeTo: relativeTo) {
+            
+            // strip exension if any off the title
+            let parts = (txt ?? "fail").components(separatedBy: ".")
+            if let ext  = parts.last,  let front = parts.first , ext.count > 0
+            {
+                let subparts = front.components(separatedBy: "-")
+                if let titl = subparts.last {
+                    let titw =  titl.trimmingCharacters(in: .whitespacesAndNewlines)
+                    links.append(LinkElement(title:titw,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
+                }
+            } else {
+                // this is what happens upstream
+                if  let txt  = txt  {
+                    links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
+                }
+            }
+        }
+    }// end of absorbLink
+    let doc = try  Kanna.HTML(html: html, encoding: .utf8)
+    let title = doc.title ?? "<untitled>"
+    var absorbedlinks:[LinkElement] = []
+    for link in doc.xpath("//a") {
+        absorbLink(href:link["href"],
+                   txt:link.text,
+                   relativeTo:theURL,
+                   tag: "media",links:&absorbedlinks )
+    }
+    return ScrapeAndAbsorbBlock(title:  title, links:absorbedlinks)
+}
+
+
+extension Array where Element == String  {
+    func includes(_ f:Element)->Bool {
+        self.firstIndex(of: f) != nil
+        }
+    }
+public struct LgFuncs: LgFuncProts {
+    
+    
+    public func scrapeAndAbsorbFunc ( theURL:URL, html:String ) throws -> ScrapeAndAbsorbBlock {
+        try  kannaScrapeAndAbsorb ( lgFuncs: self,theURL:theURL, html:html )
+    }
+    public func pageMakerFunc(_ props:CustomPageProps,  _ links: [Fav] ) throws -> () {
+       // print ("MAKING PAGE with props \(props) linkscount: \(links)")
+    }
+    public func matchingFunc(_ u: URL) -> Bool {
+        return  true//u.absoluteString.hasPrefix("https://billdonner.github.io/LinkGrubber/")
+    }
+    public func isImageExtensionFunc (_ s:String) -> Bool {
+        ["jpg","jpeg","png"].includes(s)
+    }
+    public   func isAudioExtensionFunc(_ s:String) -> Bool {
+        ["mp3","mpeg","wav"].includes(s)
+    }
+   public    func isMarkdownExtensionFunc(_ s:String) -> Bool{
+        ["md", "markdown", "txt", "text"].includes(s)
+    }
+    
+    public func isNoteworthyExtensionFunc(_ s: String) -> Bool {
+        isImageExtensionFunc(s) || isMarkdownExtensionFunc(s)
+    }
+    public func isInterestingExtensionFunc (_ s:String) -> Bool {
+        isImageExtensionFunc(s) || isAudioExtensionFunc(s)
+    }
+}
 
 let letters = CharacterSet.letters
 let digits = CharacterSet.decimalDigits
@@ -52,7 +131,7 @@ extension PublishingContext  {
 
 extension Transformer { 
     //MARK: - cleanup special folders for this site
-    func cleanOuputs(baseFolderPath:String,folderPaths:[String]) {
+    static func cleanOuputs(baseFolderPath:String,folderPaths:[String]) {
         do {
             // clear the output directory
             let fm = FileManager.default
@@ -73,7 +152,7 @@ extension Transformer {
     }
 }
 
-open class BandSiteFacts:BandSiteHTMLProt&FileSiteProt {
+open class BandSiteFacts{
     public var artist : String
     public var venueShort : String
     public var venueLong : String
@@ -132,46 +211,46 @@ open class BandSiteFacts:BandSiteHTMLProt&FileSiteProt {
 
 
 
+//
+//public extension LgFuncs {
+//    // kanna specific
+//    func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ,links: inout [LinkElement]) throws -> String {
+//
+//        func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
+//            if let lk = href, //link["href"] ,
+//                let url = URL(string:lk,relativeTo:relativeTo) ,
+//                let linktype = lgFuncs.processExtension(url:url, relativeTo: relativeTo) {
+//
+//                // strip exension if any off the title
+//                let parts = (txt ?? "fail").components(separatedBy: ".")
+//                if let ext  = parts.last,  let front = parts.first , ext.count > 0
+//                {
+//                    let subparts = front.components(separatedBy: "-")
+//                    if let titl = subparts.last {
+//                        let titw =  titl.trimmingCharacters(in: .whitespacesAndNewlines)
+//                        links.append(LinkElement(title:titw,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
+//                    }
+//                } else {
+//                    // this is what happens upstream
+//                    if  let txt  = txt  {
+//                        links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
+//                    }
+//                }
+//            }
+//        }// end of absorbLink
+//        let doc = try  Kanna.HTML(html: html, encoding: .utf8)
+//        let title = doc.title ?? "<untitled>"
+//        for link in doc.xpath("//a") {
+//            absorbLink(href:link["href"],
+//                       txt:link.text,
+//                       relativeTo:theURL,
+//                       tag: "media",links:&links )
+//        }
+//        return title
+//    }
+//}
 
-public extension LgFuncs {
-    // kanna specific
-    func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ,links: inout [LinkElement]) throws -> String {
-        
-        func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
-            if let lk = href, //link["href"] ,
-                let url = URL(string:lk,relativeTo:relativeTo) ,
-                let linktype = lgFuncs.processExtension(url:url, relativeTo: relativeTo) {
-                
-                // strip exension if any off the title
-                let parts = (txt ?? "fail").components(separatedBy: ".")
-                if let ext  = parts.last,  let front = parts.first , ext.count > 0
-                {
-                    let subparts = front.components(separatedBy: "-")
-                    if let titl = subparts.last {
-                        let titw =  titl.trimmingCharacters(in: .whitespacesAndNewlines)
-                        links.append(LinkElement(title:titw,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
-                    }
-                } else {
-                    // this is what happens upstream
-                    if  let txt  = txt  {
-                        links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
-                    }
-                }
-            }
-        }// end of absorbLink
-        let doc = try  Kanna.HTML(html: html, encoding: .utf8)
-        let title = doc.title ?? "<untitled>"
-        for link in doc.xpath("//a") {
-            absorbLink(href:link["href"],
-                       txt:link.text,
-                       relativeTo:theURL,
-                       tag: "media",links:&links )
-        }
-        return title
-    }
-}
-
-public func generateBandSite(bandfacts:BandSiteFacts ,rewriter:((String)->String),lgFuncs:LgFuncs) {
+public func generateBandSite(bandfacts:BandSiteFacts ,rewriter:((String)->URL),lgFuncs:LgFuncs) {
 func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
     // at this point we've plunked files into the designated directory
     let start = Date()
@@ -218,7 +297,7 @@ func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
         let arg1 =  CommandLine.arguments[1].lowercased()
         let incoming = String(arg1.first ?? "X")
         let rooturl = rewriter(incoming)
-        let rs = [RootStart(name: incoming, urlstr: rooturl)]
+        let rs = [RootStart(name: incoming, url: rooturl)]
         /////Hd.setup(bandfacts)
         print("[crawler] executing \(rooturl)")
         let crawler = bandSiteRunCrawler
@@ -267,7 +346,7 @@ final class AudioCrawler {
                   lgFuncs:LgFuncs,
                   pageMaker pmf: @escaping PageMakerFunc,
                  // prepublishCount: Int,
-                  bandSiteParams params:  FileSiteProt,
+                  bandSiteParams params:  BandSiteFacts,
                   finally:@escaping (Int) -> ()) {
       
         self.lgFuncs = lgFuncs
@@ -275,18 +354,16 @@ final class AudioCrawler {
         do {
 
 // first lets have a  cleansing
-     cleanOuputs(baseFolderPath:params.pathToContentDir,folderPaths: params.specialFolderPaths)
+            Transformer.cleanOuputs(baseFolderPath:params.pathToContentDir,folderPaths: params.specialFolderPaths)
 
 // now grub and make more files
             try  LinkGrubber()
                 .grub (roots:roots,
-                       opath:bandSiteParams.pathToOutputDir + "/bigdata",
-                       params:  params,
+                       opath:params.pathToOutputDir + "/bigdata",
                        logLevel: verbosity,
-                       pageMakerFunc: pmf,
                        lgFuncs:lgFuncs)
                 {  crawlResults  in
-            
+                    print("BANDSITE - crawl is done")
                     finally(200)
             }
         }
@@ -298,9 +375,9 @@ final class AudioCrawler {
     
 }//audiocrawler
 final class AudioHTMLSupport {
-    let bandfacts:FileSiteProt&BandSiteHTMLProt
+    let bandfacts: BandSiteFacts
     let lgFuncs: LgFuncs
- init(bandfacts:FileSiteProt&BandSiteHTMLProt,lgFuncs:LgFuncs)
+ init(bandfacts: BandSiteFacts,lgFuncs:LgFuncs)
     {
         self.bandfacts = bandfacts
         self.lgFuncs = lgFuncs
@@ -339,7 +416,7 @@ final class AudioHTMLSupport {
                         }
                     }
                 } else
-                    if lgFuncs.isImageExtension(pext) {
+                    if lgFuncs.isImageExtensionFunc(pext) {
                         // if its an image just accumulate them in a gallery
                         images.append(alink.url)
                 }
@@ -353,7 +430,7 @@ final class AudioHTMLSupport {
     
     private func buildAudioBlock(idx:Int,alink:Fav)->String {
         let pext = (alink.url.components(separatedBy: ".").last ?? "fail").lowercased()
-        if lgFuncs.isAudioExtension(pext){
+        if lgFuncs.isAudioExtensionFunc(pext){
             let div = Node.div(
                 .h2("\(String(format:"%02d",idx+1))    \(alink.name)"),
                 .figure(
