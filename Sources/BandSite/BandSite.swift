@@ -147,9 +147,9 @@ extension Transformer {
                     counter += 1
                 }
             }
-            print("[crawler] Cleaned \(counter) files from ", baseFolderPath )
+            print("[bandsite] Cleaned \(counter) files from ", baseFolderPath )
         }
-        catch {print("[crawler] Could not clean outputs \(error)")}
+        catch {print("[bandsite] Could not clean outputs \(error)")}
     }
 }
 
@@ -211,53 +211,13 @@ open class BandSiteFacts{
 }
 
 
-
-//
-//public extension LgFuncs {
-//    // kanna specific
-//    func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ,links: inout [LinkElement]) throws -> String {
-//
-//        func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
-//            if let lk = href, //link["href"] ,
-//                let url = URL(string:lk,relativeTo:relativeTo) ,
-//                let linktype = lgFuncs.processExtension(url:url, relativeTo: relativeTo) {
-//
-//                // strip exension if any off the title
-//                let parts = (txt ?? "fail").components(separatedBy: ".")
-//                if let ext  = parts.last,  let front = parts.first , ext.count > 0
-//                {
-//                    let subparts = front.components(separatedBy: "-")
-//                    if let titl = subparts.last {
-//                        let titw =  titl.trimmingCharacters(in: .whitespacesAndNewlines)
-//                        links.append(LinkElement(title:titw,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
-//                    }
-//                } else {
-//                    // this is what happens upstream
-//                    if  let txt  = txt  {
-//                        links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
-//                    }
-//                }
-//            }
-//        }// end of absorbLink
-//        let doc = try  Kanna.HTML(html: html, encoding: .utf8)
-//        let title = doc.title ?? "<untitled>"
-//        for link in doc.xpath("//a") {
-//            absorbLink(href:link["href"],
-//                       txt:link.text,
-//                       relativeTo:theURL,
-//                       tag: "media",links:&links )
-//        }
-//        return title
-//    }
-//}
-
 public func generateBandSite(bandfacts:BandSiteFacts ,rewriter:((String)->URL),lgFuncs:LgFuncs) {
 func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
     // at this point we've plunked files into the designated directory
     let start = Date()
     let published_counts = crawlResults.count1 + prcount
     let elapsed = Date().timeIntervalSince(start) / Double(published_counts)
-    print("[crawler] published \(published_counts) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
+    print("[bandsite] published \(published_counts) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
 }
     
     func printUsage() {
@@ -290,7 +250,7 @@ func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
 
     
     do {
-        let bletch = { print("[crawler] bad command \(CommandLine.arguments)"  )
+        let bletch = { print("[bandsite] bad command \(CommandLine.arguments)"  )
             printUsage()
             return
         }
@@ -299,8 +259,8 @@ func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
         let incoming = String(arg1.first ?? "X")
         let rooturl = rewriter(incoming)
         let rs = [RootStart(name: incoming, url: rooturl)]
-        /////Hd.setup(bandfacts)
-        print("[crawler] executing \(rooturl)")
+    
+        print("[bandsite] crawling \(rooturl)")
         let crawler = bandSiteRunCrawler
         
         var done = false
@@ -314,14 +274,9 @@ func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
             }
             done=true
         })
-        while (done==false) { print("[crawler] sleep"); sleep(1);}
-        print("[crawler] it was a perfect crawl ")
-        
-        // this is the first time we hit the sites
-//
-//        let stepcount = publishBandSite()
-//        print("[crawler] Publish finished; steps:",stepcount)
-        
+        while (done==false) { sleep(1);}
+        print("[bandsite] crawl complete")
+
         return
     }
 } 
@@ -364,12 +319,12 @@ final class AudioCrawler {
                        logLevel: verbosity,
                        lgFuncs:lgFuncs)
                 {  crawlResults  in
-                    print("BANDSITE - crawl is done")
+                   //// print("BANDSITE - crawl is done")
                     finally(200)
             }
         }
         catch {
-            print("[crawler] encountered error \(error)")
+            print("[bandsite] encountered error \(error)")
             finally(404)
         }
     }//init
@@ -413,7 +368,7 @@ final class AudioHTMLSupport {
                             pmdbuf +=   try String(contentsOf: surl) + "\n\n\n"
                         }
                         catch {
-                            print("[crawler] Couldnt read bytes from \(alink.url) \(error)")
+                            print("[bandsite] Couldnt read bytes from \(alink.url) \(error)")
                         }
                     }
                 } else
@@ -553,7 +508,7 @@ final class AudioHTMLSupport {
                 moretags.insert(bonustag)
             }
         }
-        if links.count == 0 { print("[crawler] no links for \(props.title) - check your music tree") }
+        if links.count == 0 { print("[bandsite] no links for \(props.title) - check your music tree") }
         else {
             
             let x=makeBannerAndTags(aurl:props.urlstr , mode: props.isInternalPage)
