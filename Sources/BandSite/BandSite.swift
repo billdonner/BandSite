@@ -5,7 +5,6 @@ import Kanna
 import Plot
 import Publish 
 
-
 let letters = CharacterSet.letters
 let digits = CharacterSet.decimalDigits
 
@@ -15,6 +14,65 @@ let digits = CharacterSet.decimalDigits
     var venueLong : String { get set }
     var crawlTags:[String] { get set }
 }
+
+fileprivate extension SortOrder {
+    func makeASorter<T, V: Comparable>(
+        forKeyPath keyPath: KeyPath<T, V>
+    ) -> (T, T) -> Bool {
+        switch self {
+        case .ascending:
+            return {
+                $0[keyPath: keyPath] < $1[keyPath: keyPath]
+            }
+        case .descending:
+            return {
+                $0[keyPath: keyPath] > $1[keyPath: keyPath]
+            }
+        }
+    }
+}
+extension PublishingContext  {
+    /// Return someitems within this website, sorted by a given key path.
+    ///  - parameter max: Max Number of items to return
+    /// - parameter sortingKeyPath: The key path to sort the items by.
+    /// - parameter order: The order to use when sorting the items.
+    
+    
+    func someItems<T: Comparable>(max:Int,
+                                  sortedBy sortingKeyPath: KeyPath<Item<Site>, T>,
+                                  order: SortOrder = .ascending
+    ) -> [Item<Site>] {
+        let items = sections.flatMap { $0.items }
+        let x = items.sorted(
+            by: order.makeASorter(forKeyPath: sortingKeyPath))
+        return x.dropLast((x.count-max)>0 ? x.count-max : 0)
+    }
+}
+
+
+extension Transformer { 
+    //MARK: - cleanup special folders for this site
+    func cleanOuputs(baseFolderPath:String,folderPaths:[String]) {
+        do {
+            // clear the output directory
+            let fm = FileManager.default
+            var counter = 0
+            for folder in folderPaths{
+                
+                let dir = URL(fileURLWithPath:baseFolderPath+folder)
+                
+                let furls = try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
+                for furl in furls {
+                    try fm.removeItem(at: furl)
+                    counter += 1
+                }
+            }
+            print("[crawler] Cleaned \(counter) files from ", baseFolderPath )
+        }
+        catch {print("[crawler] Could not clean outputs \(error)")}
+    }
+}
+
 open class BandSiteFacts:BandSiteHTMLProt&FileSiteProt {
     public var artist : String
     public var venueShort : String
@@ -77,7 +135,7 @@ open class BandSiteFacts:BandSiteHTMLProt&FileSiteProt {
 
 public extension LgFuncs {
     // kanna specific
-    public static func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ,links: inout [LinkElement]) throws -> String {
+    func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ,links: inout [LinkElement]) throws -> String {
         
         func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
             if let lk = href, //link["href"] ,
@@ -111,9 +169,6 @@ public extension LgFuncs {
         }
         return title
     }
-    
-
-    
 }
 
 public func generateBandSite(bandfacts:BandSiteFacts ,rewriter:((String)->String),lgFuncs:LgFuncs) {
@@ -203,8 +258,45 @@ extension Node where Context: HTML.BodyContext {
         .element(named: "figcaption", nodes: nodes)
     }
 }
+final class AudioCrawler {
+    
+    var lgFuncs: LgFuncs
+    
+    public  init( roots:[RootStart],
+                  verbosity: LoggingLevel,
+                  lgFuncs:LgFuncs,
+                  pageMaker pmf: @escaping PageMakerFunc,
+                 // prepublishCount: Int,
+                  bandSiteParams params:  FileSiteProt,
+                  finally:@escaping (Int) -> ()) {
+      
+        self.lgFuncs = lgFuncs
 
+        do {
 
+// first lets have a  cleansing
+     cleanOuputs(baseFolderPath:params.pathToContentDir,folderPaths: params.specialFolderPaths)
+
+// now grub and make more files
+            try  LinkGrubber()
+                .grub (roots:roots,
+                       opath:bandSiteParams.pathToOutputDir + "/bigdata",
+                       params:  params,
+                       logLevel: verbosity,
+                       pageMakerFunc: pmf,
+                       lgFuncs:lgFuncs)
+                {  crawlResults  in
+            
+                    finally(200)
+            }
+        }
+        catch {
+            print("[crawler] encountered error \(error)")
+            finally(404)
+        }
+    }//init
+    
+}//audiocrawler
 final class AudioHTMLSupport {
     let bandfacts:FileSiteProt&BandSiteHTMLProt
     let lgFuncs: LgFuncs
