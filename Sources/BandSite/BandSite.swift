@@ -118,7 +118,7 @@ extension PublishingContext  {
     /// - parameter order: The order to use when sorting the items.
     
     
-    func someItems<T: Comparable>(max:Int,
+   public func someItems<T: Comparable>(max:Int,
                                   sortedBy sortingKeyPath: KeyPath<Item<Site>, T>,
                                   order: SortOrder = .ascending
     ) -> [Item<Site>] {
