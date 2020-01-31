@@ -56,6 +56,7 @@ extension Array where Element == String  {
     }
 public struct LgFuncs: LgFuncProts {
     
+    public init () {} // needed to allow instantiation from "main"
     
     public func scrapeAndAbsorbFunc ( theURL:URL, html:String ) throws -> ScrapeAndAbsorbBlock {
         try  kannaScrapeAndAbsorb ( lgFuncs: self,theURL:theURL, html:html )
