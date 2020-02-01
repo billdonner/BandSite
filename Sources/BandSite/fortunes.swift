@@ -6,9 +6,7 @@
 //
 
 import Foundation
-public struct BandSite {
-    var text = "Hello, World!"
-}
+
 open class Fortunes {
 static let fortunes = [
   "With integrity and consistency -- your credits are piling up.",

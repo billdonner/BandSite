@@ -4,6 +4,16 @@ import Kanna
 import Plot
 import Publish 
 
+public struct BandSite {
+    var text = "BandSite" // there is a test case that matches this
+}
+
+extension Array where Element == String  {
+func includes(_ f:Element)->Bool {
+    self.firstIndex(of: f) != nil
+    }
+}
+
 
 // these functions must be supplied by the caller of LinkGrubber.grub()
 func scraperReturnsNothing (_  lgFuncs:LgFuncs,url: URL, s: String ) throws -> ScrapeAndAbsorbBlock {
@@ -11,7 +21,7 @@ func scraperReturnsNothing (_  lgFuncs:LgFuncs,url: URL, s: String ) throws -> S
     return ScrapeAndAbsorbBlock(title: "scraperReturnsNothing",links: [])
 }
 
-// for testing only , we'll use kanna
+//  we'll use kanna
 
 func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ) throws -> ScrapeAndAbsorbBlock {
     func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
@@ -48,12 +58,6 @@ func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ) throws -> S
     return ScrapeAndAbsorbBlock(title:  title, links:absorbedlinks)
 }
 
-
-extension Array where Element == String  {
-    func includes(_ f:Element)->Bool {
-        self.firstIndex(of: f) != nil
-        }
-    }
 public struct LgFuncs: LgFuncProts {
     
     public init () {} // needed to allow instantiation from "main"
@@ -88,12 +92,6 @@ public struct LgFuncs: LgFuncProts {
 let letters = CharacterSet.letters
 let digits = CharacterSet.decimalDigits
 
-  protocol   BandSiteHTMLProt: class  {
-    var artist : String { get set }
-    var venueShort : String { get set }
-    var venueLong : String { get set }
-    var crawlTags:[String] { get set }
-}
 
 fileprivate extension SortOrder {
     func makeASorter<T, V: Comparable>(
@@ -153,7 +151,7 @@ extension Transformer {
     }
 }
 
-open class BandSiteFacts{
+open class BandInfo{
     public var artist : String
     public var venueShort : String
     public var venueLong : String
@@ -207,11 +205,11 @@ open class BandSiteFacts{
         self.favicon = favicon
         //
     }
-    
 }
 
 
-public func generateBandSite(bandfacts:BandSiteFacts ,rewriter:((String)->URL),lgFuncs:LgFuncs) {
+@discardableResult
+public func generateBandSite(bandinfo:BandInfo ,rewriter:((String)->URL),lgFuncs:LgFuncs, logLevel:LoggingLevel = .none) -> Int {
 func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
     // at this point we've plunked files into the designated directory
     let start = Date()
@@ -228,26 +226,27 @@ func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
         print("usage:")
         print("\(executableName) s or m or l")
     }
-
+    
+    
     func bandSiteRunCrawler (_ roots:[RootStart],lgFuncs:LgFuncs,finally:@escaping (Int)->()) {
         
-        let pmf = AudioHTMLSupport(bandfacts: bandfacts,
+        let pmf = AudioHTMLSupport(bandinfo: bandinfo,
                                    lgFuncs: lgFuncs ).audioListPageMakerFunc
         
         let _ = AudioCrawler(roots:roots,
-                             verbosity:  .none,
+                             verbosity: logLevel,
                              lgFuncs: lgFuncs,
                              pageMaker: pmf,
-                           //  prepublishCount: bandfacts.allFavorites.count ,
+                           //  prepublishCount: bandinfo.allFavorites.count ,
                              //
-        bandSiteParams: bandfacts) { status in // just runs
-            
-            
+        bandSiteParams: bandinfo) { status in // just runs
             finally(status)
         }
     }
-    // the main program starts right here really starts here
-
+    
+    
+    // the main generateBandSite starts right here really starts here
+    var command_status =  0
     
     do {
         let bletch = { print("[bandsite] bad command \(CommandLine.arguments)"  )
@@ -265,19 +264,18 @@ func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
         
         var done = false
         crawler(rs, lgFuncs, { status in
-            switch status {
+            command_status = status
+            switch     command_status {
             case 200:
-                
-                
                 break
             default:  bletch(); exit(0) 
             }
             done=true
         })
         while (done==false) { sleep(1);}
-        print("[bandsite] crawl complete")
+        print("[bandsite] crawl complete \((command_status == 200) ? "🤲🏻":"⛑")")
 
-        return
+        return command_status
     }
 } 
 
@@ -302,7 +300,7 @@ final class AudioCrawler {
                   lgFuncs:LgFuncs,
                   pageMaker pmf: @escaping PageMakerFunc,
                  // prepublishCount: Int,
-                  bandSiteParams params:  BandSiteFacts,
+                  bandSiteParams params:  BandInfo,
                   finally:@escaping (Int) -> ()) {
       
         self.lgFuncs = lgFuncs
@@ -331,11 +329,11 @@ final class AudioCrawler {
     
 }//audiocrawler
 final class AudioHTMLSupport {
-    let bandfacts: BandSiteFacts
+    let bandinfo: BandInfo
     let lgFuncs: LgFuncs
- init(bandfacts: BandSiteFacts,lgFuncs:LgFuncs)
+ init(bandinfo: BandInfo,lgFuncs:LgFuncs)
     {
-        self.bandfacts = bandfacts
+        self.bandinfo = bandinfo
         self.lgFuncs = lgFuncs
     }
     func topdiv(cookie:String,links:[Fav],lgFuncs:LgFuncs)-> Node<HTML.BodyContext>  {
@@ -476,7 +474,7 @@ final class AudioHTMLSupport {
         func checkForBonusTags(name:String?)->String? {
             if let songName = name {
                 let shorter = songName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-                for tuneTag in  bandfacts.crawlTags {
+                for tuneTag in  bandinfo.crawlTags {
                     if shorter.hasPrefix(tuneTag) {
                         return tuneTag
                     }
@@ -500,7 +498,7 @@ final class AudioHTMLSupport {
         let shredded = pickapart(fund)
         let playdate = shredded.digits
         let venue = shredded.letters
-        let ve =  venue == "" ? bandfacts.venueShort : venue
+        let ve =  venue == "" ? bandinfo.venueShort : venue
         guard playdate != "" else {return}
         
         for link in links {
@@ -517,9 +515,9 @@ final class AudioHTMLSupport {
             var spec: String
             switch  props.isInternalPage {
             case  false :
-                spec =  "\(bandfacts.pathToContentDir)/audiosessions/\(ve)\(playdate).md"
+                spec =  "\(bandinfo.pathToContentDir)/audiosessions/\(ve)\(playdate).md"
             case true  :
-                spec =  "\(bandfacts.pathToContentDir)/favorites/\(props.title).md"
+                spec =  "\(bandinfo.pathToContentDir)/favorites/\(props.title).md"
             }
             guard let u = URL(string:props.urlstr) else { return }
             let stuff =  generateAudioMarkdownPage(x.banner,
