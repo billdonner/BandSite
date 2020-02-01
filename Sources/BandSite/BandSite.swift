@@ -157,14 +157,9 @@ open class BandInfo{
     public var pathToOutputDir: String
     public var matchingURLPrefix : String
     public var specialFolderPaths: [String]
-    public var language : String // in plot its language
     public var url : String
     public var name : String
     public var shortname: String
-    public var resourcePaths:Set<Path>
-    public var description : String
-    public var imagePath :  String? // in plot its path
-    public var favicon: String? // in plot its Favicon
     
     public init(
         artist : String = "",
@@ -175,14 +170,9 @@ open class BandInfo{
         pathToOutputDir : String = "",
         matchingURLPrefix :String = "",
         specialFolderPaths :[String] = [],
-        language : String = "EN",
         url : String = "",
         name : String = "",
-        shortname : String = "",
-        description : String = "",
-        resourcePaths: Set<Path> = [],
-        imagePath : String? = nil,
-        favicon:String? = nil
+        shortname : String = ""
     ){
         self.artist = artist
         self.venueShort = venueShort
@@ -192,14 +182,9 @@ open class BandInfo{
         self.pathToOutputDir = pathToOutputDir
         self.matchingURLPrefix = matchingURLPrefix
         self.specialFolderPaths = specialFolderPaths
-        self.language = language
         self.url = url
         self.name = name
-        self.shortname = shortname
-        self.resourcePaths = resourcePaths
-        self.description = description
-        self.imagePath = imagePath
-        self.favicon = favicon
+        self.shortname = shortname 
         //
     }
 }

@@ -1,6 +1,5 @@
 import XCTest
-import Plot
-import Publish
+
 @testable import BandSite
 
 final class BandSiteTests: XCTestCase {
@@ -32,14 +31,9 @@ func command_rewriter (c:String)->URL {
         pathToOutputDir: dirpath + "/Resources/BigData",
         matchingURLPrefix:  "https://billdonner.com/halfdead" ,
         specialFolderPaths: ["/audiosessions","/favorites"],
-        language: "EN",
         url: "http://abouthalfdead.com",
         name: "About Half Dead ",
-        shortname: "ABHD",
-        description:"A Jamband Featuring Doors, Dead, ABB Long Form Performances",
-        resourcePaths:   ["Resources/HdTheme/hdstyles.css"],
-        imagePath:  "images/ABHDLogo.png" ,
-        favicon:  "images/favicon.png")
+        shortname: "ABHD")
         
         
         let status = generateBandSite(bandinfo:bandfacts,
@@ -63,14 +57,9 @@ func command_rewriter (c:String)->URL {
         pathToOutputDir: dirpath + "/Resources/BigData",
         matchingURLPrefix:  "https://billdonner.com/halfdead" ,
         specialFolderPaths: ["/audiosessions","/favorites"],
-        language: "EN",
         url: "http://abouthalfdead.com",
         name: "About Half Dead ",
-        shortname: "ABHD",
-        description:"A Jamband Featuring Doors, Dead, ABB Long Form Performances",
-        resourcePaths:   ["Resources/HdTheme/hdstyles.css"],
-        imagePath:  "images/ABHDLogo.png" ,
-        favicon:  "images/favicon.png")
+        shortname: "ABHD")
         
         
         let status = generateBandSite(bandinfo:bandfacts,
