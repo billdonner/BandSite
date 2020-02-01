@@ -18,8 +18,12 @@ func command_rewriter (c:String)->URL {
         // results.
         XCTAssertEqual(BandSite().text, "BandSite")
     }
-    func testGenerateSite() {
-        
+    func testGenerateSiteHD2019() {
+        func command_rewriter (c:String)->URL {
+                let url = URL(string:"https://billdonner.com/halfdead/2019/")
+                  guard let nrl  = url else { print("bad url in command rewriter"); exit(0)}
+                  return nrl
+        }
         let bandfacts = BandInfo (
         venueShort: "thorn",
         venueLong: "Highline Studios, Thornwood, NY",
@@ -28,14 +32,45 @@ func command_rewriter (c:String)->URL {
         pathToOutputDir: dirpath + "/Resources/BigData",
         matchingURLPrefix:  "https://billdonner.com/halfdead" ,
         specialFolderPaths: ["/audiosessions","/favorites"],
-        language: Language.english,
+        language: "EN",
         url: "http://abouthalfdead.com",
         name: "About Half Dead ",
         shortname: "ABHD",
         description:"A Jamband Featuring Doors, Dead, ABB Long Form Performances",
         resourcePaths:   ["Resources/HdTheme/hdstyles.css"],
-        imagePath:  Path("images/ABHDLogo.png") ,
-        favicon:  Favicon(path: "images/favicon.png"))
+        imagePath:  "images/ABHDLogo.png" ,
+        favicon:  "images/favicon.png")
+        
+        
+        let status = generateBandSite(bandinfo:bandfacts,
+                                 rewriter:command_rewriter,
+                                 lgFuncs: LgFuncs(),
+                                 logLevel: .verbose)
+
+        XCTAssertEqual(status, 200)
+    }
+    func testGenerateSiteTwoSite() {
+        func command_rewriter (c:String)->URL {
+                let url = URL(string:"https://billdonner.github.io/LinkGrubber/linkgrubberexamples/two-site/")
+                  guard let nrl  = url else { print("bad url in command rewriter"); exit(0)}
+                  return nrl
+        }
+        let bandfacts = BandInfo (
+        venueShort: "thorn",
+        venueLong: "Highline Studios, Thornwood, NY",
+        crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
+        pathToContentDir: dirpath + "/Content",
+        pathToOutputDir: dirpath + "/Resources/BigData",
+        matchingURLPrefix:  "https://billdonner.com/halfdead" ,
+        specialFolderPaths: ["/audiosessions","/favorites"],
+        language: "EN",
+        url: "http://abouthalfdead.com",
+        name: "About Half Dead ",
+        shortname: "ABHD",
+        description:"A Jamband Featuring Doors, Dead, ABB Long Form Performances",
+        resourcePaths:   ["Resources/HdTheme/hdstyles.css"],
+        imagePath:  "images/ABHDLogo.png" ,
+        favicon:  "images/favicon.png")
         
         
         let status = generateBandSite(bandinfo:bandfacts,
@@ -46,13 +81,10 @@ func command_rewriter (c:String)->URL {
         XCTAssertEqual(status, 200)
     }
     
-    func testPublishSite() {
-        // this publishes a new version of the static website based on the Publish and Plot spm
-        let _ =  publishBandSite() // turn it over to John Sundell
-    }
+
     static var allTests = [
         ("testExample", testExample),
-        ("testGenerateSite", testGenerateSite)
-             ("testPublishSite", testPublishSite)
+        ("testGenerateSiteHD2019", testGenerateSiteHD2019) ,
+        ("testGenerateSiteTwoSite", testGenerateSiteTwoSite)
     ]
 }

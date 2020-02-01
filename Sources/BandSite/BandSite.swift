@@ -16,10 +16,7 @@ func includes(_ f:Element)->Bool {
 
 
 // these functions must be supplied by the caller of LinkGrubber.grub()
-func scraperReturnsNothing (_  lgFuncs:LgFuncs,url: URL, s: String ) throws -> ScrapeAndAbsorbBlock {
-    print("[LinkGrubber] scraping \(url)")
-    return ScrapeAndAbsorbBlock(title: "scraperReturnsNothing",links: [])
-}
+
 
 //  we'll use kanna
 
@@ -160,14 +157,14 @@ open class BandInfo{
     public var pathToOutputDir: String
     public var matchingURLPrefix : String
     public var specialFolderPaths: [String]
-    public var language : Language
+    public var language : String // in plot its language
     public var url : String
     public var name : String
     public var shortname: String
     public var resourcePaths:Set<Path>
     public var description : String
-    public var imagePath : Path?
-    public var favicon: Favicon?
+    public var imagePath :  String? // in plot its path
+    public var favicon: String? // in plot its Favicon
     
     public init(
         artist : String = "",
@@ -178,14 +175,14 @@ open class BandInfo{
         pathToOutputDir : String = "",
         matchingURLPrefix :String = "",
         specialFolderPaths :[String] = [],
-        language : Language = .english,
+        language : String = "EN",
         url : String = "",
         name : String = "",
         shortname : String = "",
         description : String = "",
         resourcePaths: Set<Path> = [],
-        imagePath : Path? = nil,
-        favicon:Favicon? = nil
+        imagePath : String? = nil,
+        favicon:String? = nil
     ){
         self.artist = artist
         self.venueShort = venueShort
