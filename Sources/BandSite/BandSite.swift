@@ -1,66 +1,20 @@
 import Foundation
 import LinkGrubber
-import Kanna 
 import Plot
-import Publish 
+import Publish
+import HTMLExtractor
 
 public struct BandSite {
     var text = "BandSite" // there is a test case that matches this
-}
-
-extension Array where Element == String  {
-func includes(_ f:Element)->Bool {
-    self.firstIndex(of: f) != nil
-    }
-}
-
-
-// these functions must be supplied by the caller of LinkGrubber.grub()
-
-
-//  we'll use kanna
-
-func kannaScrapeAndAbsorb (lgFuncs:LgFuncs,theURL:URL, html:String ) throws -> ScrapeAndAbsorbBlock {
-    func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
-        if let lk = href, //link["href"] ,
-            let url = URL(string:lk,relativeTo:relativeTo) ,
-            let linktype = processExtension(lgFuncs: lgFuncs, url:url, relativeTo: relativeTo) {
-            
-            // strip exension if any off the title
-            let parts = (txt ?? "fail").components(separatedBy: ".")
-            if let ext  = parts.last,  let front = parts.first , ext.count > 0
-            {
-                let subparts = front.components(separatedBy: "-")
-                if let titl = subparts.last {
-                    let titw =  titl.trimmingCharacters(in: .whitespacesAndNewlines)
-                    links.append(LinkElement(title:titw,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
-                }
-            } else {
-                // this is what happens upstream
-                if  let txt  = txt  {
-                    links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
-                }
-            }
-        }
-    }// end of absorbLink
-    let doc = try  Kanna.HTML(html: html, encoding: .utf8)
-    let title = doc.title ?? "<untitled>"
-    var absorbedlinks:[LinkElement] = []
-    for link in doc.xpath("//a") {
-        absorbLink(href:link["href"],
-                   txt:link.text,
-                   relativeTo:theURL,
-                   tag: "media",links:&absorbedlinks )
-    }
-    return ScrapeAndAbsorbBlock(title:  title, links:absorbedlinks)
 }
 
 public struct LgFuncs: LgFuncProts {
     
     public init () {} // needed to allow instantiation from "main"
     
-    public func scrapeAndAbsorbFunc ( theURL:URL, html:String ) throws -> ScrapeAndAbsorbBlock {
-        try  kannaScrapeAndAbsorb ( lgFuncs: self,theURL:theURL, html:html )
+    public func scrapeAndAbsorbFunc ( theURL:URL, html:String ) throws ->  ScrapeAndAbsorbBlock {
+        let x   = HTMLExtractor.extractFrom (  html:html )
+        return HTMLExtractor.converttoScrapeAndAbsorbBlock(x,relativeTo:theURL)
     }
     public func pageMakerFunc(_ props:CustomPageProps,  _ links: [Fav] ) throws -> () {
        // print ("MAKING PAGE with props \(props) linkscount: \(links)")
@@ -125,7 +79,7 @@ extension PublishingContext  {
 }
 
 
-extension Transformer { 
+extension Transformer { // in LinkGrubber
     //MARK: - cleanup special folders for this site
     static func cleanOuputs(baseFolderPath:String,folderPaths:[String]) {
         do {
@@ -150,8 +104,6 @@ extension Transformer {
 
 open class BandInfo{
     public var artist : String
-    public var venueShort : String
-    public var venueLong : String
     public var crawlTags:[String]
     public var pathToContentDir : String
     public var pathToOutputDir: String
@@ -163,8 +115,6 @@ open class BandInfo{
     
     public init(
         artist : String = "",
-        venueShort : String = "",
-        venueLong : String  = "",
         crawlTags:[String]  = [],
         pathToContentDir : String = "",
         pathToOutputDir : String = "",
@@ -175,8 +125,6 @@ open class BandInfo{
         shortname : String = ""
     ){
         self.artist = artist
-        self.venueShort = venueShort
-        self.venueLong = venueLong
         self.crawlTags = crawlTags
         self.pathToContentDir = pathToContentDir
         self.pathToOutputDir = pathToOutputDir
@@ -219,8 +167,6 @@ func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
                              verbosity: logLevel,
                              lgFuncs: lgFuncs,
                              pageMaker: pmf,
-                           //  prepublishCount: bandinfo.allFavorites.count ,
-                             //
         bandSiteParams: bandinfo) { status in // just runs
             finally(status)
         }
@@ -256,7 +202,6 @@ func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
         })
         while (done==false) { sleep(1);}
         print("[bandsite] crawl complete \((command_status == 200) ? "🤲🏻":"⛑")")
-
         return command_status
     }
 } 
@@ -274,9 +219,7 @@ extension Node where Context: HTML.BodyContext {
     }
 }
 final class AudioCrawler {
-    
-    var lgFuncs: LgFuncs
-    
+    var lgFuncs: LgFuncs 
     public  init( roots:[RootStart],
                   verbosity: LoggingLevel,
                   lgFuncs:LgFuncs,
@@ -469,18 +412,15 @@ final class AudioHTMLSupport {
             let markdownData: Data? = stuff.data(using: .utf8)
             try markdownData!.write(to:URL(fileURLWithPath:  spec,isDirectory: false))
         }
-        
-        
-        
+
         var moretags:Set<String>=[]
-        
-        
+
         // starts here
         let fund = props.urlstr.components(separatedBy: ".").last ?? "fail"
         let shredded = pickapart(fund)
         let playdate = shredded.digits
         let venue = shredded.letters
-        let ve =  venue == "" ? bandinfo.venueShort : venue
+        let ve =  venue == "" ? "<no venue>" : venue
         guard playdate != "" else {return}
         
         for link in links {
@@ -492,8 +432,7 @@ final class AudioHTMLSupport {
         else {
             
             let x=makeBannerAndTags(aurl:props.urlstr , mode: props.isInternalPage)
-            
-            
+
             var spec: String
             switch  props.isInternalPage {
             case  false :

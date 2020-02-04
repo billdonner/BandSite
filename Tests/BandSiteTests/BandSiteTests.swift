@@ -24,9 +24,7 @@ func command_rewriter (c:String)->URL {
                   return nrl
         }
         let bandfacts = BandInfo (
-        venueShort: "thorn",
-        venueLong: "Highline Studios, Thornwood, NY",
-        crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
+        crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one" ,"riders" ,"light","love"],
         pathToContentDir: dirpath + "/Content",
         pathToOutputDir: dirpath + "/Resources/BigData",
         matchingURLPrefix:  "https://billdonner.com/halfdead" ,
@@ -50,8 +48,6 @@ func command_rewriter (c:String)->URL {
                   return nrl
         }
         let bandfacts = BandInfo (
-        venueShort: "thorn",
-        venueLong: "Highline Studios, Thornwood, NY",
         crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
         pathToContentDir: dirpath + "/Content",
         pathToOutputDir: dirpath + "/Resources/BigData",

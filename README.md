@@ -1,6 +1,6 @@
 # BandSite
 
-0.0.36
+0.0.37
 
 ## Swift Package to Scan and Analyze Music Files
 
@@ -8,9 +8,7 @@ I use it selfishly for apps in the bands I play with and also for using Publish 
 
 ```swift
 
-let bandfacts = BandInfo (
-venueShort: "thorn",
-venueLong: "Highline Studios, Thornwood, NY",
+let bandfacts = BandInfo ( 
 crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
 pathToContentDir: dirpath + "/Content",
 pathToOutputDir: dirpath + "/Resources/BigData",
