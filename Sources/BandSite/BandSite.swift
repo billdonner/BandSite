@@ -234,7 +234,7 @@ final class AudioCrawler {
 open  class AudioHTMLSupport {
     let bandinfo: BandInfo
     let lgFuncs: FileTypeProts
- init(bandinfo: BandInfo,lgFuncs:FileTypeProts)
+ public init(bandinfo: BandInfo,lgFuncs:FileTypeProts)
     {
         self.bandinfo = bandinfo
         self.lgFuncs = lgFuncs
