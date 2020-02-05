@@ -8,37 +8,52 @@ public struct BandSite {
     var text = "BandSite" // there is a test case that matches this
 }
 
-public struct LgFuncs: LgFuncProts {
+// extend the LgFuncs from Linkgrubber
+public protocol FileTypeProts  {
+      
+    func isImageExtensionFunc(_ s:String) -> Bool
     
-    public init () {} // needed to allow instantiation from "main"
+    func isAudioExtensionFunc(_ s:String) -> Bool
+    func isMarkdownExtensionFunc(_ s:String) -> Bool
+    func isNoteworthyExtensionFunc(_ s: String) -> Bool
+    func isInterestingExtensionFunc (_ s:String) -> Bool
+}
+public struct  FileTypeFuncs:FileTypeProts&LgFuncProts  {
+    public func pageMakerFunc(_ props: CustomPageProps, _ links: [Fav]) throws {
+          = AudioHTMLSupport(bandinfo: bandinfo,
+                                         lgFuncs: lgFuncs ).audioListPageMakerFunc
+    }
     
-    public func scrapeAndAbsorbFunc ( theURL:URL, html:String ) throws ->  ScrapeAndAbsorbBlock {
-        let x   = HTMLExtractor.extractFrom (  html:html )
-        return HTMLExtractor.converttoScrapeAndAbsorbBlock(x,relativeTo:theURL)
-    }
-    public func pageMakerFunc(_ props:CustomPageProps,  _ links: [Fav] ) throws -> () {
-       // print ("MAKING PAGE with props \(props) linkscount: \(links)")
-    }
     public func matchingFunc(_ u: URL) -> Bool {
-        return  true//u.absoluteString.hasPrefix("https://billdonner.github.io/LinkGrubber/")
+        <#code#>
     }
+    
+    public func scrapeAndAbsorbFunc(theURL: URL, html: String) throws -> ScrapeAndAbsorbBlock {
+        <#code#>
+    }
+    
+
+    
+    public init() {}
+    
     public func isImageExtensionFunc (_ s:String) -> Bool {
-        ["jpg","jpeg","png"].includes(s)
-    }
-    public   func isAudioExtensionFunc(_ s:String) -> Bool {
+         ["jpg","jpeg","png"].includes(s)
+     }
+
+    public func isAudioExtensionFunc(_ s:String) -> Bool {
         ["mp3","mpeg","wav"].includes(s)
     }
-   public    func isMarkdownExtensionFunc(_ s:String) -> Bool{
+    public func isMarkdownExtensionFunc(_ s:String) -> Bool{
         ["md", "markdown", "txt", "text"].includes(s)
     }
-    
     public func isNoteworthyExtensionFunc(_ s: String) -> Bool {
         isImageExtensionFunc(s) || isMarkdownExtensionFunc(s)
     }
-    public func isInterestingExtensionFunc (_ s:String) -> Bool {
+   public  func isInterestingExtensionFunc (_ s:String) -> Bool {
         isImageExtensionFunc(s) || isAudioExtensionFunc(s)
     }
 }
+
 
 let letters = CharacterSet.letters
 let digits = CharacterSet.decimalDigits
@@ -139,7 +154,7 @@ open class BandInfo{
 
 
 @discardableResult
-public func generateBandSite(bandinfo:BandInfo ,rewriter:((String)->URL),lgFuncs:LgFuncs, logLevel:LoggingLevel = .none) -> Int {
+public func generateBandSite(bandinfo:BandInfo ,rewriter:((String)->URL),lgFuncs:FileTypeProts&LgFuncProts, logLevel:LoggingLevel = .none) -> Int {
 func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
     // at this point we've plunked files into the designated directory
     let start = Date()
@@ -158,15 +173,14 @@ func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
     }
     
     
-    func bandSiteRunCrawler (_ roots:[RootStart],lgFuncs:LgFuncs,finally:@escaping (Int)->()) {
+    func bandSiteRunCrawler (_ roots:[RootStart],lgFuncs:FileTypeProts&LgFuncProts,finally:@escaping (Int)->()) {
         
-        let pmf = AudioHTMLSupport(bandinfo: bandinfo,
-                                   lgFuncs: lgFuncs ).audioListPageMakerFunc
+      
         
         let _ = AudioCrawler(roots:roots,
                              verbosity: logLevel,
                              lgFuncs: lgFuncs,
-                             pageMaker: pmf,
+                            
         bandSiteParams: bandinfo) { status in // just runs
             finally(status)
         }
@@ -219,11 +233,11 @@ extension Node where Context: HTML.BodyContext {
     }
 }
 final class AudioCrawler {
-    var lgFuncs: LgFuncs 
+    var lgFuncs: LgFuncProts
     public  init( roots:[RootStart],
                   verbosity: LoggingLevel,
-                  lgFuncs:LgFuncs,
-                  pageMaker pmf: @escaping PageMakerFunc,
+                  lgFuncs:LgFuncProts,
+                 // pageMaker pmf: @escaping PageMakerFunc,
                  // prepublishCount: Int,
                   bandSiteParams params:  BandInfo,
                   finally:@escaping (Int) -> ()) {
@@ -255,13 +269,13 @@ final class AudioCrawler {
 }//audiocrawler
 final class AudioHTMLSupport {
     let bandinfo: BandInfo
-    let lgFuncs: LgFuncs
- init(bandinfo: BandInfo,lgFuncs:LgFuncs)
+    let lgFuncs: FileTypeProts
+ init(bandinfo: BandInfo,lgFuncs:FileTypeProts)
     {
         self.bandinfo = bandinfo
         self.lgFuncs = lgFuncs
     }
-    func topdiv(cookie:String,links:[Fav],lgFuncs:LgFuncs)-> Node<HTML.BodyContext>  {
+    func topdiv(cookie:String,links:[Fav],lgFuncs:FileTypeProts)-> Node<HTML.BodyContext>  {
         let immd = AudioHTMLSupport.ImagesAndMarkdown.generateImagesAndMarkdownFromRemoteDirectoryAssets(links:links,lgFuncs:lgFuncs)
         
         return Node.div ( .div(
@@ -279,7 +293,7 @@ final class AudioHTMLSupport {
         let images: [String]
         let markdown: String
         
-        static func generateImagesAndMarkdownFromRemoteDirectoryAssets(links:[Fav],lgFuncs:LgFuncs) -> ImagesAndMarkdown {
+        static func generateImagesAndMarkdownFromRemoteDirectoryAssets(links:[Fav],lgFuncs:FileTypeProts) -> ImagesAndMarkdown {
             var images: [String] = []
             var pmdbuf = "\n"
             for(_,alink) in links.enumerated() {

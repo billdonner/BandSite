@@ -36,7 +36,7 @@ func command_rewriter (c:String)->URL {
         
         let status = generateBandSite(bandinfo:bandfacts,
                                  rewriter:command_rewriter,
-                                 lgFuncs: LgFuncs(),
+                                 lgFuncs: FileTypeFuncs(),
                                  logLevel: .verbose)
 
         XCTAssertEqual(status, 200)
@@ -60,7 +60,7 @@ func command_rewriter (c:String)->URL {
         
         let status = generateBandSite(bandinfo:bandfacts,
                                  rewriter:command_rewriter,
-                                 lgFuncs: LgFuncs(),
+                                 lgFuncs: FileTypeFuncs(),
                                  logLevel: .verbose)
 
         XCTAssertEqual(status, 200)
