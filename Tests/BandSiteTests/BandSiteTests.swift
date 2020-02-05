@@ -14,8 +14,8 @@ final class BandSiteTests: XCTestCase {
         
         
         public func pageMakerFunc(_ props: CustomPageProps, _ links: [Fav]) throws {
-           let _    = AudioHTMLSupport(bandinfo: bandfacts,
-                                       lgFuncs: self ).audioListPageMakerFunc(props: props)
+           let _    = try AudioHTMLSupport(bandinfo: bandfacts,
+                                       lgFuncs: self ).audioListPageMakerFunc(props: props, links: links)
         }
         
         public func matchingFunc(_ u: URL) -> Bool {
@@ -79,7 +79,7 @@ func command_rewriter (c:String)->URL {
         
         let status = generateBandSite(bandinfo:bandfacts,
                                  rewriter:command_rewriter,
-                                 lgFuncs: FileTypeFuncs(bandfacts),
+                                 lgFuncs: FileTypeFuncs(bandfacts: bandfacts),
                                  logLevel: .verbose)
 
         XCTAssertEqual(status, 200)
@@ -103,7 +103,7 @@ func command_rewriter (c:String)->URL {
         shortname: "ABHD")
         let status = generateBandSite(bandinfo:bandfacts,
                                  rewriter:command_rewriter,
-                                 lgFuncs: FileTypeFuncs(bandfacts),
+                                 lgFuncs: FileTypeFuncs(bandfacts: bandfacts),
                                  logLevel: .verbose)
 
         XCTAssertEqual(status, 200)

@@ -1,6 +1,6 @@
 # BandSite
 
-0.0.39
+0.0.40
 
 ## Swift Package to Scan and Analyze Music Files
 
