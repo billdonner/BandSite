@@ -7,57 +7,20 @@ import HTMLExtractor
 public struct BandSite {
     var text = "BandSite" // there is a test case that matches this
 }
+let letters = CharacterSet.letters
+let digits = CharacterSet.decimalDigits
+
 
 // extend the LgFuncs from Linkgrubber
 public protocol FileTypeProts  {
-      
     func isImageExtensionFunc(_ s:String) -> Bool
-    
     func isAudioExtensionFunc(_ s:String) -> Bool
     func isMarkdownExtensionFunc(_ s:String) -> Bool
     func isNoteworthyExtensionFunc(_ s: String) -> Bool
     func isInterestingExtensionFunc (_ s:String) -> Bool
 }
-public struct  FileTypeFuncs:FileTypeProts&LgFuncProts  {
-    public func pageMakerFunc(_ props: CustomPageProps, _ links: [Fav]) throws {
-          = AudioHTMLSupport(bandinfo: bandinfo,
-                                         lgFuncs: lgFuncs ).audioListPageMakerFunc
-    }
-    
-    public func matchingFunc(_ u: URL) -> Bool {
-        <#code#>
-    }
-    
-    public func scrapeAndAbsorbFunc(theURL: URL, html: String) throws -> ScrapeAndAbsorbBlock {
-        <#code#>
-    }
-    
 
-    
-    public init() {}
-    
-    public func isImageExtensionFunc (_ s:String) -> Bool {
-         ["jpg","jpeg","png"].includes(s)
-     }
-
-    public func isAudioExtensionFunc(_ s:String) -> Bool {
-        ["mp3","mpeg","wav"].includes(s)
-    }
-    public func isMarkdownExtensionFunc(_ s:String) -> Bool{
-        ["md", "markdown", "txt", "text"].includes(s)
-    }
-    public func isNoteworthyExtensionFunc(_ s: String) -> Bool {
-        isImageExtensionFunc(s) || isMarkdownExtensionFunc(s)
-    }
-   public  func isInterestingExtensionFunc (_ s:String) -> Bool {
-        isImageExtensionFunc(s) || isAudioExtensionFunc(s)
-    }
-}
-
-
-let letters = CharacterSet.letters
-let digits = CharacterSet.decimalDigits
-
+public typealias BandSiteProt = FileTypeProts&LgFuncProts
 
 fileprivate extension SortOrder {
     func makeASorter<T, V: Comparable>(
@@ -75,6 +38,7 @@ fileprivate extension SortOrder {
         }
     }
 }
+
 extension PublishingContext  {
     /// Return someitems within this website, sorted by a given key path.
     ///  - parameter max: Max Number of items to return
@@ -267,7 +231,7 @@ final class AudioCrawler {
     }//init
     
 }//audiocrawler
-final class AudioHTMLSupport {
+open  class AudioHTMLSupport {
     let bandinfo: BandInfo
     let lgFuncs: FileTypeProts
  init(bandinfo: BandInfo,lgFuncs:FileTypeProts)
@@ -372,8 +336,6 @@ final class AudioHTMLSupport {
         // func topdiv(cookie:String,links:[Fav],lgFuncs:LgFuncs)-> Node<HTML.BodyContext>
         return markdownmetadata(stuff: immd.markdown) + "\(topdiv(cookie:cookie,links:links,lgFuncs:lgFuncs).render())"
     }
-    
-    
     
     // this variation uses venu and playdate to form a title
     public  func audioListPageMakerFunc(
