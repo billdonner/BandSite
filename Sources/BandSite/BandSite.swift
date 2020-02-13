@@ -3,6 +3,7 @@ import LinkGrubber
 import Plot
 import Publish
 import HTMLExtractor
+import CookieMonster
 
 public struct BandSite {
     var text = "BandSite" // there is a test case that matches this
@@ -314,7 +315,7 @@ open  class AudioHTMLSupport {
         
         let immd = ImagesAndMarkdown.generateImagesAndMarkdownFromRemoteDirectoryAssets(links:links,lgFuncs:lgFuncs)
         
-        let cookie = Fortunes.get_fortune_cookie()
+        let cookie = CookieMonster.get_fortune_cookie()
         
         // it seems essential to put the title in here instead of inside the plot Node above
         func   markdownmetadata(stuff:String)-> String {

@@ -1,6 +1,6 @@
 # BandSite
 
-0.0.41
+0.0.42 Moved to CookieMonster
 
 ## Swift Package to Scan and Analyze Music Files
 
