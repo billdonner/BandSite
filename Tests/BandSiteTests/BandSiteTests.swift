@@ -48,11 +48,6 @@ final class BandSiteTests: XCTestCase {
     
 let dirpath = "/Users/williamdonner/hd"
 
-func command_rewriter (c:String)->URL {
-        let url = URL(string:"https://billdonner.com/halfdead/2019/")
-          guard let nrl  = url else { print("bad url in command rewriter"); exit(0)}
-          return nrl
-}
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
@@ -61,11 +56,7 @@ func command_rewriter (c:String)->URL {
     }
     
     func testGenerateSiteHD2019() {
-        func command_rewriter (c:String)->URL {
-                let url = URL(string:"https://billdonner.com/halfdead/2019/")
-                  guard let nrl  = url else { print("bad url in command rewriter"); exit(0)}
-                  return nrl
-        }
+ 
         let bandfacts = BandInfo (
         crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one" ,"riders" ,"light","love"],
         pathToContentDir: dirpath + "/Content",
@@ -77,20 +68,16 @@ func command_rewriter (c:String)->URL {
         shortname: "ABHD")
         
         
-        let status = generateBandSite(bandinfo:bandfacts,
-                                 rewriter:command_rewriter,
+        let status = generateBandSite(URL(string:"https://billdonner.com/halfdead/2019/")!,
+                                 bandinfo:bandfacts,
                                  lgFuncs: FileTypeFuncs(bandfacts: bandfacts),
                                  logLevel: .verbose)
 
-        XCTAssertEqual(status, 200)
+        XCTAssertEqual(status.status,200)
     }
     
     func testGenerateSiteTwoSite() {
-        func command_rewriter (c:String)->URL {
-                let url = URL(string:"https://billdonner.github.io/LinkGrubber/linkgrubberexamples/two-site/")
-                  guard let nrl  = url else { print("bad url in command rewriter"); exit(0)}
-                  return nrl
-        }
+
         
         let bandfacts = BandInfo (
         crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
@@ -101,12 +88,12 @@ func command_rewriter (c:String)->URL {
         url: "http://abouthalfdead.com",
         name: "About Half Dead ",
         shortname: "ABHD")
-        let status = generateBandSite(bandinfo:bandfacts,
-                                 rewriter:command_rewriter,
+        let status = generateBandSite(URL(string:"https://billdonner.github.io/LinkGrubber/linkgrubberexamples/two-site/")!,
+                                      bandinfo:bandfacts,
                                  lgFuncs: FileTypeFuncs(bandfacts: bandfacts),
                                  logLevel: .verbose)
 
-        XCTAssertEqual(status, 200)
+        XCTAssertEqual(status.status, 200)
     }
     
 

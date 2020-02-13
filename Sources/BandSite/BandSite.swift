@@ -23,40 +23,6 @@ public protocol FileTypeProts  {
 
 public typealias BandSiteProt = FileTypeProts&LgFuncProts
 
-fileprivate extension SortOrder {
-    func makeASorter<T, V: Comparable>(
-        forKeyPath keyPath: KeyPath<T, V>
-    ) -> (T, T) -> Bool {
-        switch self {
-        case .ascending:
-            return {
-                $0[keyPath: keyPath] < $1[keyPath: keyPath]
-            }
-        case .descending:
-            return {
-                $0[keyPath: keyPath] > $1[keyPath: keyPath]
-            }
-        }
-    }
-}
-
-extension PublishingContext  {
-    /// Return someitems within this website, sorted by a given key path.
-    ///  - parameter max: Max Number of items to return
-    /// - parameter sortingKeyPath: The key path to sort the items by.
-    /// - parameter order: The order to use when sorting the items.
-    
-    
-   public func someItems<T: Comparable>(max:Int,
-                                  sortedBy sortingKeyPath: KeyPath<Item<Site>, T>,
-                                  order: SortOrder = .ascending
-    ) -> [Item<Site>] {
-        let items = sections.flatMap { $0.items }
-        let x = items.sorted(
-            by: order.makeASorter(forKeyPath: sortingKeyPath))
-        return x.dropLast((x.count-max)>0 ? x.count-max : 0)
-    }
-}
 
 
 extension Transformer { // in LinkGrubber
@@ -118,124 +84,91 @@ open class BandInfo{
 }
 
 
+
+
+func printUsage() {
+    let processinfo = ProcessInfo()
+    print(processinfo.processName)
+    let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
+    print("\(executableName)")
+    print("usage:")
+    print("\(executableName) s or m or l")
+}
+
 @discardableResult
-public func generateBandSite(bandinfo:BandInfo ,rewriter:((String)->URL),lgFuncs:FileTypeProts&LgFuncProts, logLevel:LoggingLevel = .none) -> Int {
-func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
-    // at this point we've plunked files into the designated directory
-    let start = Date()
-    let published_counts = crawlResults.count1 + prcount
-    let elapsed = Date().timeIntervalSince(start) / Double(published_counts)
-    print("[bandsite] published \(published_counts) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
-}
+public func generateBandSite(_ rootURL:URL, bandinfo:BandInfo ,lgFuncs:FileTypeProts&LgFuncProts, logLevel:LoggingLevel = .none) -> LinkGrubberStats {
     
-    func printUsage() {
-        let processinfo = ProcessInfo()
-        print(processinfo.processName)
-        let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
-        print("\(executableName)")
-        print("usage:")
-        print("\(executableName) s or m or l")
+    var audioCrawlStatus:LinkGrubberStats? = nil
+    var audioCrawler : AudioCrawler  //let this get retained
+    let start = Date() // start timing now
+    
+    func showCrawlStats(_ crawlResults:LinkGrubberStats,prcount:Int ) {
+        // at this point we've plunked files into the designated directory
+        let published_counts = crawlResults.count1 + prcount
+        let elapsed = Date().timeIntervalSince(start) / Double(published_counts)
+        print("[bandsite] published \(published_counts) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
     }
     
-    
-    func bandSiteRunCrawler (_ roots:[RootStart],lgFuncs:FileTypeProts&LgFuncProts,finally:@escaping (Int)->()) {
-        
-      
-        
-        let _ = AudioCrawler(roots:roots,
-                             verbosity: logLevel,
-                             lgFuncs: lgFuncs,
-                            
-        bandSiteParams: bandinfo) { status in // just runs
-            finally(status)
-        }
-    }
-    
-    
-    // the main generateBandSite starts right here really starts here
-    var command_status =  0
-    
-    do {
-        let bletch = { print("[bandsite] bad command \(CommandLine.arguments)"  )
-            printUsage()
-            return
-        }
-        guard CommandLine.arguments.count > 1 else  { bletch(); exit(0)  }
-        let arg1 =  CommandLine.arguments[1].lowercased()
-        let incoming = String(arg1.first ?? "X")
-        let rooturl = rewriter(incoming)
-        let rs = [RootStart(name: incoming, url: rooturl)]
-    
-        print("[bandsite] crawling \(rooturl)")
-        let crawler = bandSiteRunCrawler
-        
-        var done = false
-        crawler(rs, lgFuncs, { status in
-            command_status = status
-            switch     command_status {
-            case 200:
-                break
-            default:  bletch(); exit(0) 
-            }
-            done=true
-        })
-        while (done==false) { sleep(1);}
-        print("[bandsite] crawl complete \((command_status == 200) ? "🤲🏻":"⛑")")
-        return command_status
-    }
-} 
+        let bletch = { fatalError("[bandsite] cant generate from \(rootURL)")}
 
-extension Node where Context: HTML.BodyContext {
-    /// Add a `<figure>` HTML element within the current context.
-    /// - parameter nodes: The element's attributes and child elements.
-    static func figure(_ nodes: Node<HTML.BodyContext>...) -> Node {
-        .element(named: "figure", nodes: nodes)
-    }
-    /// Add a `<figcaption>` HTML element within the current context.
-    /// - parameter nodes: The element's attributes and child elements.
-    static func figcaption(_ nodes: Node<HTML.BodyContext>...) -> Node {
-        .element(named: "figcaption", nodes: nodes)
-    }
-}
-final class AudioCrawler {
-    var lgFuncs: LgFuncProts
-    public  init( roots:[RootStart],
-                  verbosity: LoggingLevel,
-                  lgFuncs:LgFuncProts,
-                 // pageMaker pmf: @escaping PageMakerFunc,
-                 // prepublishCount: Int,
-                  bandSiteParams params:  BandInfo,
-                  finally:@escaping (Int) -> ()) {
-      
-        self.lgFuncs = lgFuncs
-
+        let rs = [RootStart(name: rootURL.deletingPathExtension().lastPathComponent,  url: rootURL)]
+        
+        print("[bandsite] crawling \(rootURL)")
+        
+        audioCrawler = AudioCrawler ( lgFuncs: lgFuncs,bandSiteParams: bandinfo)
         do {
-
-// first lets have a  cleansing
-            Transformer.cleanOuputs(baseFolderPath:params.pathToContentDir,folderPaths: params.specialFolderPaths)
-
-// now grub and make more files
-            try  LinkGrubber()
-                .grub (roots:roots,
-                       opath:params.pathToOutputDir + "/bigdata",
-                       logLevel: verbosity,
-                       lgFuncs:lgFuncs)
-                {  crawlResults  in
-                   //// print("BANDSITE - crawl is done")
-                    finally(200)
+            try audioCrawler.crawl(roots:rs, verbosity: logLevel) { status in
+                audioCrawlStatus = status
+                print("bandsiteruncrawler \(status)")
+                switch     audioCrawlStatus?.status {
+                case 200:  break
+                default:  bletch()
+                }
             }
         }
         catch {
-            print("[bandsite] encountered error \(error)")
-            finally(404)
+            bletch()
         }
+        // now stall until the crawl completes
+        while (audioCrawlStatus==nil) { sleep(1);print("sleep...")}
+        showCrawlStats(audioCrawlStatus!, prcount: 1)
+        print("[bandsite] crawl complete \((audioCrawlStatus!.status == 200) ? "🤲🏻":"⛑")")
+        return audioCrawlStatus!
+} 
+
+
+final class AudioCrawler {
+    var lgFuncs: LgFuncProts
+    var params: BandInfo
+    
+    public func crawl( roots:[RootStart],
+                       verbosity: LoggingLevel,
+                       finally:@escaping ReturnsGrubberStats) throws {
+        
+        
+        // first lets have a  cleansing
+        Transformer.cleanOuputs(baseFolderPath:params.pathToContentDir,folderPaths: params.specialFolderPaths)
+        try  LinkGrubber().grub (roots:roots,
+                                 opath:params.pathToOutputDir + "/bigdata",
+                                 logLevel: verbosity,
+                                 lgFuncs:lgFuncs)
+        {  crawlResults  in
+            //// print("BANDSITE - crawl is done")
+            finally(crawlResults)
+        }
+        
+    }
+    public  init( lgFuncs:LgFuncProts, bandSiteParams params:  BandInfo ) {
+        
+        self.lgFuncs = lgFuncs
+        self.params = params
     }//init
     
 }//audiocrawler
 open  class AudioHTMLSupport {
     let bandinfo: BandInfo
     let lgFuncs: FileTypeProts
- public init(bandinfo: BandInfo,lgFuncs:FileTypeProts)
+    public init(bandinfo: BandInfo,lgFuncs:FileTypeProts)
     {
         self.bandinfo = bandinfo
         self.lgFuncs = lgFuncs
@@ -389,9 +322,9 @@ open  class AudioHTMLSupport {
             let markdownData: Data? = stuff.data(using: .utf8)
             try markdownData!.write(to:URL(fileURLWithPath:  spec,isDirectory: false))
         }
-
+        
         var moretags:Set<String>=[]
-
+        
         // starts here
         let fund = props.urlstr.components(separatedBy: ".").last ?? "fail"
         let shredded = pickapart(fund)
@@ -409,7 +342,7 @@ open  class AudioHTMLSupport {
         else {
             
             let x=makeBannerAndTags(aurl:props.urlstr , mode: props.isInternalPage)
-
+            
             var spec: String
             switch  props.isInternalPage {
             case  false :

@@ -1,6 +1,6 @@
 # BandSite
 
-0.0.42 Moved to CookieMonster
+0.0.42 two tests failing, pushing into cli code
 
 ## Swift Package to Scan and Analyze Music Files
 
